@@ -5,4 +5,31 @@
   --font-merriweather: "Merriweather", serif;
   --font-poppins: "Poppins", sans-serif;
   --font-open-sans: "Open Sans", sans-serif;
+  --color-bread: #fcf5de;
+  --breakpoint-mini-sm: 20rem;
+  --animate-slide: slide 5s linear infinite;
+  --animate-delayed-slide: delayed-slide 5s linear 2.5s infinite;
+
+  @keyframes slide {
+    0% {
+      transform: translateX(100%);
+    }
+
+    100% {
+      transform: translateX(-100%);
+      /* //translate is better as 100% in tranlate = total width of its element(the element it has been applied on), whereas in left it is equal to the width of parent i want the text to slide through well. completely so it does it better. */
+    }
+  }
+
+  @keyframes delayed-slide {
+    0% {
+      opacity: 1;
+      transform: translateX(100%);
+    }
+
+    100% {
+      opacity: 1;
+      transform: translateX(-100%);
+    }
+  }
 }
