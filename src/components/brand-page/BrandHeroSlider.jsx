@@ -22,14 +22,20 @@ export function BrandHeroSlider() {
   };
 
   function getSliderAutoUpdated() {
-    isDragging.current.status = false;
+    //the reason i shifted to 2 different slider states, focuse,active is because i do not want the user to trigger this function just for a click withouth any movement, only when movement is there i want to see what to do with the slide, else ignore any way it was just a click.
+    isDragging.current.focused = false;
+    isDragging.current.active = false;
     const { currentSwipeX } = isDragging.current;
+    console.log(currentSwipeX);
     // --
     if (currentSwipeX >= 30) {
       updateSlider(currentSwipeX, "forward");
     } else if (currentSwipeX <= -30) {
       updateSlider(currentSwipeX, "backward");
-    } else setSlideX((prevState) => prevState - currentSwipeX);
+    } else {
+      console.log("this one ran.", slideX);
+      setSlideX((prevState) => prevState - currentSwipeX);
+    }
     //its little tricky to understad this prevState - currentSwipeX but it works the key is currentswipe can be a negative value or a positive value.
 
     function updateSlider(currentSwipeX, action) {
@@ -51,70 +57,51 @@ export function BrandHeroSlider() {
     }
   }
 
-  /*   function storeSlabs(elWidth) {
-    const slabs = {
-      leftUpperLimit: Math.round(elWidth * 0.3),
-      rightLowerLimit: Math.round(elWidth * 0.7),
-    };
-
-    sliderSlabs.current = slabs;
-  }
-  // console.log(imgCount); */
   return (
     <div
       onPointerDown={(e) => {
         console.log("onPointerDown");
         //when i am double clicking, the Pointer move event i not getting fired fix it.
-        isDragging.current.status = true;
+        isDragging.current.focused = true;
         isDragging.current.startPoint = e.clientX;
-        if (!isDragging.current.sliderWidth) {
-          isDragging.current.sliderWidth = e.currentTarget.clientWidth;
+        // don’t complicate code disproportionately for microscopic gains. but yes reading and comparison is faster then mutation.
+        if (isDragging.current.sliderWidth === undefined) {
           isDragging.current.prevSwipeX = 0; // it is the first time so there cannot be a swipe.
         }
-        // isDragging.current = { status: true, startPoint: e.clientX };//creating new object is heavy then mutating an existing object.
-        // if (!sliderSlabs.current) storeSlabs(e.currentTarget.clientWidth);
-        // // --
-        // const { leftUpperLimit, rightLowerLimit } = sliderSlabs.current;
-        // const pointerX = e.clientX;
-        // //this touch which side logic willwork here fine,but it assumes the element we are detecting touch upon has a width = vw, else e.ClientX alone will not be enougth just leving note for future build.
-        // if (imgCount > 0 && pointerX <= leftUpperLimit) {
-        //   setImgCount((prev) => --prev);
-        // } else if (imgCount < 5 && pointerX >= rightLowerLimit) {
-        //   setImgCount((prev) => ++prev);
-        // }
+        if (isDragging.current.sliderWidth !== e.currentTarget.clientWidth) {
+          isDragging.current.sliderWidth = e.currentTarget.clientWidth;
+        }
       }}
       onPointerMove={(e) => {
         // the slider still have problem, instarting when i doing a left swipe it is breaking the code, and wheni am clicking then the slider is moving for some reason, + sliding limits are not enfroced that also needs attention.
         // console.log('ran')
-        if (isDragging.current.status) {
+        if (isDragging.current.focused) {
           isDragging.current.endPoint = e.clientX;
-          const { endPoint, startPoint, sliderWidth, prevSwipeX } =
+          const { endPoint, startPoint, sliderWidth, prevSwipeX, active } =
             isDragging.current;
-          // console.log(prevSwipeX, slideX);
           const deltaX = startPoint - endPoint;
-          // console.log(deltaX);
-          /*   // this swipes has been named on the bases on content movement not finger movement,
-          const isRightSwipe = deltaX < 20;
-          const isLeftSwipe = deltaX > 20; */
           const swipeX = Math.round((deltaX / sliderWidth) * 100);
           setSlideX(prevSwipeX + swipeX);
           isDragging.current.currentSwipeX = swipeX;
+          if (!active) isDragging.current.active = true;
         }
       }}
       onPointerUp={() => {
-        if (isDragging.current.status) getSliderAutoUpdated();
+        // console.log('up')
+        if (isDragging.current.active) getSliderAutoUpdated();
       }}
       onPointerLeave={() => {
-        if (isDragging.current.status) getSliderAutoUpdated();
+        console.log("left");
+        if (isDragging.current.active) getSliderAutoUpdated();
       }}
-      className="relative h-full min-h-95 touch-pan-y"
+      className="relative h-full min-h-95 cursor-grab touch-pan-y select-none"
     >
       <div className="absolute inset-0 overflow-clip">
         <div
           style={{
             transform: slideX ? `translateX(-${slideX}%)` : "",
           }}
-          className={`flex size-full transition-transform ${isDragging.current.status ? "duration-0" : ""} *:size-full *:shrink-0 *:object-cover *:object-center`}
+          className={`flex size-full transition-transform ${isDragging.current.active ? "cursor-grabbing duration-0" : "cursor-grab"} *:size-full *:shrink-0 *:object-cover *:object-center`}
         >
           {/* <img src={images.heroImg} draggable="false" alt="" />
           <img src={images.forestImg} draggable="false" alt="" />
