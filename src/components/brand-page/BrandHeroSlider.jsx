@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import heroImg from "../../assets/hero section images panel.png";
 import flattenColorPalette from "tailwindcss/lib/util/flattenColorPalette";
 export function BrandHeroSlider() {
@@ -6,7 +6,6 @@ export function BrandHeroSlider() {
   const isDragging = useRef({});
   const [imgCount, setImgCount] = useState(0);
   const [slideX, setSlideX] = useState(0);
-
   const images = {
     heroImg,
     forestImg:
@@ -20,17 +19,31 @@ export function BrandHeroSlider() {
     catImg:
       "https://images.pexels.com/photos/37681897/pexels-photo-37681897.png?_gl=1*3mftbd*_ga*MjEyMTAzNTIwLjE3Nzg4MzQ3MDE.*_ga_8JE65Q40S6*czE3Nzk1MjQzNjEkbzMkZzEkdDE3Nzk1MjQzNzQkajQ3JGwwJGgw",
   };
+
+  useEffect(() => {
+    if (isDragging.current.resetRequired?.status) {
+      const { action } = isDragging.current.resetRequired;
+      // --
+      const resetValue = action === "toStart" ? 0 : 5 * 100;
+      setSlideX(resetValue);
+      isDragging.current.prevSwipeX = resetValue;
+      isDragging.current.resetRequired = { status: true, action: "none" };//need to keep it true so the when component renders again UseEffects runs and then i will update status. what to do there was no other way to make this 3 useEffect run and do it in one. 
+    }
+    /* return () => {
+      isDragging.current.resetRequired = { status: false, action: "none" };
+    }; */ //cleanUp function not necessary for my case as anyway with each action i am setting to false.
+  }, [isDragging.current.resetRequired]);
+
   function getSliderAutoUpdated() {
     //the reason i shifted to 2 different slider states, focuse,active is because i do not want the user to trigger this function just for a click withouth any movement, only when movement is there i want to see what to do with the slide, else ignore any way it was just a click.
     isDragging.current.focused = false;
     isDragging.current.active = false;
     const { currentSwipeX } = isDragging.current;
-    console.log(currentSwipeX);
     // --
     // debugger;
-    if (currentSwipeX >= 30 && imgCount < 5) {
+    if (currentSwipeX >= 30) {
       updateSlider(currentSwipeX, "forward");
-    } else if (currentSwipeX <= -30 && imgCount > 0) {
+    } else if (currentSwipeX <= -30) {
       updateSlider(currentSwipeX, "backward");
     } else {
       console.log("this one ran.", slideX);
@@ -51,8 +64,22 @@ export function BrandHeroSlider() {
       const requirement = swipeRequirement[action](currentSwipeX);
       setSlideX((prevState) => {
         const definedSlide = swipeAction[action](prevState, requirement);
+        const pointer = definedSlide / 100;
         isDragging.current.prevSwipeX = definedSlide;
-        setImgCount(definedSlide / 100);
+        // --
+        if (pointer === -1) {
+          setImgCount(5);
+          isDragging.current.resetRequired = { status: true, action: "toEnd" };
+          console.log("i ran");
+        } else if (pointer === 6) {
+          setImgCount(0);
+          isDragging.current.resetRequired = {
+            status: true,
+            action: "toStart",
+          };
+        } else setImgCount(pointer);
+
+        // --
         return definedSlide;
       });
     }
@@ -98,9 +125,9 @@ export function BrandHeroSlider() {
       <div className="absolute inset-0 overflow-clip">
         <div
           style={{
-            transform: slideX ? `translateX(${-slideX}%)` : "",
+            transform: `translateX(calc(${-slideX}% - 100%))`,
           }}
-          className={`flex size-full transition-transform ${isDragging.current.active ? "cursor-grabbing duration-0" : "cursor-grab"} *:size-full *:shrink-0 *:object-cover *:object-center`}
+          className={`flex size-full transition-transform ${isDragging.current.resetRequired?.status ? "duration-0" : ""} ${isDragging.current.active ? "cursor-grabbing duration-0" : "cursor-grab"} *:size-full *:shrink-0 *:object-cover *:object-center`}
         >
           {/* <img src={images.heroImg} draggable="false" alt="" />
           <img src={images.forestImg} draggable="false" alt="" />
@@ -108,12 +135,14 @@ export function BrandHeroSlider() {
           <img src={images.buildingImg} draggable="false" alt="" />
           <img src={images.building2Img} draggable="false" alt="" />
           <img src={images.mosqueImg} draggable="false" alt="" /> */}
-          <div className="bg-blue-100"></div>
-          <div className="bg-blue-200"></div>
-          <div className="bg-blue-300"></div>
-          <div className="bg-blue-400"></div>
-          <div className="bg-blue-500"></div>
-          <div className="bg-blue-600"></div>
+          <div className="bg-sky-200" aria-label="last-clone"></div>
+          <div className="bg-stone-300"></div>
+          <div className="bg-amber-200"></div>
+          <div className="bg-orange-300"></div>
+          <div className="bg-lime-200"></div>
+          <div className="bg-teal-200"></div>
+          <div className="bg-sky-200"></div>
+          <div className="bg-stone-300" aria-label="first-clone"></div>
         </div>
       </div>
 
