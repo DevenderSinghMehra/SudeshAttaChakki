@@ -1,5 +1,6 @@
 import dummyImage from "../../assets/madhu.jpg";
 import Icons from "../../assets/spriteIcons.svg?url&no-inline";
+import { SpriteIcon } from "../SpriteIcon";
 export function BrandCTAStrip() {
   const mobile = true;
   // const widthWithoutScrollBar = document.documentElement.clientWidth;
@@ -8,9 +9,7 @@ export function BrandCTAStrip() {
     <div className="font-poppins flex shrink-0 gap-x-1.5 px-1.5 pb-1.5">
       <div className="bg-bread relative w-[clamp(232px,60%,450px)] rounded-2xl px-4.5 pt-2 pb-3">
         <button className="absolute top-0 right-0 rounded-tr-2xl rounded-bl-sm bg-black/12 px-2.5 py-1.25">
-          <svg className="size-4.5">
-            <use href={`${Icons}#double-dots`}></use>
-          </svg>
+          <SpriteIcon className="size-4.5" iconName="double-dots" />
         </button>
         <h6 className="mini-sm:text-center mb-2.5 text-start text-sm font-semibold">
           Testimonials
@@ -38,7 +37,7 @@ export function BrandCTAStrip() {
         </div>
       </div>
       <span className="bg-bread flex w-[clamp(142px,37.5%,186px)] flex-col rounded-2xl p-4 pt-2">
-        <p className="text-sm font-semibold max-[410px]:h-5 max-[410px]:relative max-[410px]:overflow-x-clip max-[410px]:whitespace-nowrap min-[410px]:text-center">
+        <p className="text-sm font-semibold max-[410px]:relative max-[410px]:h-5 max-[410px]:overflow-x-clip max-[410px]:whitespace-nowrap min-[410px]:text-center">
           <span className="max-[410px]:animate-slide max-[410px]:absolute max-[410px]:inline-block max-[410px]:px-2">
             Connect with Us
           </span>
@@ -46,9 +45,10 @@ export function BrandCTAStrip() {
             Connect with Us
           </span>
         </p>
-        <svg className="m-auto size-20 active:opacity-70">
-          <use href={`${Icons}#whatsapp-icon`}></use>
-        </svg>
+        <SpriteIcon
+          className="m-auto size-20 active:opacity-70"
+          iconName="whatsapp-icon"
+        />
       </span>
     </div>
   );

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Icons from "../../assets/spriteIcons.svg?url&no-inline";
+import { SpriteIcon } from "../SpriteIcon";
 export default function Hamburger() {
   const [isClick, setIsClick] = useState(false);
   return (
@@ -7,11 +7,12 @@ export default function Hamburger() {
       onClick={() => {
         setIsClick(!isClick);
       }}
-      className="rounded-md px-2.5 py-2.5 active:bg-black/4"
+      className="rounded-md px-2.5 py-2.5 active:bg-black/4 cursor-pointer"
     >
-      <svg className="size-5">
-        <use href={`${Icons}${isClick ? "#cross" : "#hamburger"}`}></use>
-      </svg>
+      <SpriteIcon
+        className="size-5"
+        iconName={isClick ? "cross" : "hamburger"}
+      />
     </button>
     // <button className="rounded-md px-2.5 py-2.5 *:h-[2.5px] *:w-4.75 *:bg-black active:bg-black/4">
     //   {/* block element height grow with content, no need to do h-fit-content. */}
