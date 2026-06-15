@@ -8,10 +8,10 @@ export function BrandHeroSlider() {
     sliderWidth: 0,
     isTransitioning: false,
     autoPlayId: 0,
+    imgCount: 0,
     reset: {
       start: false,
       action: null,
-      active: false,
     },
   });
 
@@ -25,38 +25,45 @@ export function BrandHeroSlider() {
     startPoint: 0,
     endPoint: 0,
   });
-  const [imgCount, setImgCount] = useState(0);
   const [slideX, setSlideX] = useState(0);
-  const [autoPlay, setAutoPlay] = useState(true);
-  ///the problem we have is that, reset feels forced the animation part needs to be handled.
+  const [isautoPlay, setIsAutoPlay] = useState(true);
+  const [isResetting, setIsResetting] = useState(false);
 
   useEffect(() => {
-    if (!autoPlay) {
+    if (!isautoPlay) {
       clearInterval(slider.current.autoPlayId);
       slider.current.autoPlayId = 0;
     } else {
       slider.current.autoPlayId = setInterval(() => {
+        if (slider.current.isTransitioning || isResetting) return;
         updateSlider(100, "forward");
-      }, 1000);
+      }, 5000);
     }
-  }, [autoPlay]);
 
+    return () => {
+      clearInterval(slider.current.autoPlayId);
+      //slider.current.autoPlayId = 0; //*no need to do this if unmount happen states are destroyed and on mount it are created fresh.
+    };
+  }, [isautoPlay]);
+  //!there is still a problem on fast reset request, transition duration-0 is not happening it is not too much but in between it is happening.
   useEffect(() => {
-    if (slider.current.reset.start) {
-      setTimeout(() => {
-        const { action } = slider.current.reset;
-        // --
-        const resetValue = action === "toStart" ? 0 : 5 * 100;
-        setSlideX(resetValue);
-        swipe.current.accumulatedSwipeX = resetValue;
-        slider.current.reset.start = false;
-        slider.current.reset.active = true;
-      }, 300); //!i need to do something for this. being timming oriented makes thing messy especially with styles for sure.
-      //?maybe make it transition end dependent.
-    } else slider.current.reset.active = false;
-  }, [slider.current.reset.start]);
+    if (isResetting) setIsResetting(false); //just prevent the initial state update else even with if it can work.
+    //?fun fact is because reset transition duration is 0 that is why this code is working the way we wanted else, maybe in half or so it will get changed.
+  }, [isResetting]);
+
+  function resetSlider() {
+    const { action } = slider.current.reset;
+    // --
+    const resetValue = action === "toStart" ? 0 : 5 * 100;
+    setSlideX(resetValue);
+    swipe.current.accumulatedSwipeX = resetValue;
+    slider.current.reset.action = null;
+    slider.current.reset.start = false;
+    setIsResetting(true);
+  }
 
   function updateSlider(value, action) {
+    // --
     setSlideX((prev) => {
       const definedSlide = action === "forward" ? prev + value : prev - value;
       // --
@@ -64,14 +71,16 @@ export function BrandHeroSlider() {
       swipe.current.accumulatedSwipeX = definedSlide;
       // --
       if (pointer === -1) {
-        setImgCount(5);
         slider.current.reset.start = true;
         slider.current.reset.action = "toEnd";
+        slider.current.imgCount = 5;
       } else if (pointer === 6) {
-        setImgCount(0);
         slider.current.reset.start = true;
         slider.current.reset.action = "toStart";
-      } else setImgCount(pointer);
+        slider.current.imgCount = 0;
+      } else {
+        slider.current.imgCount = pointer;
+      }
       // --
       return definedSlide;
     });
@@ -80,7 +89,7 @@ export function BrandHeroSlider() {
   function invokeSliderUpdate() {
     touch.current.focused = false;
     touch.current.active = false;
-    setAutoPlay(true);
+    setIsAutoPlay(true);
     const { currentSwipeX } = swipe.current;
     // --
     if (currentSwipeX >= 15) {
@@ -93,10 +102,11 @@ export function BrandHeroSlider() {
   return (
     <div
       onPointerDown={(e) => {
-        if (slider.current.isTransitioning || slider.current.reset.active) {
+        if (slider.current.isTransitioning || slider.current.reset.start) {
           return;
         }
-        setAutoPlay(false);
+        // *i wanted to allow to this touch even during transtion, but i think as per ux it is not important let then user see thing full or not see at all.
+        setIsAutoPlay(false);
         touch.current.focused = true;
         touch.current.startPoint = e.clientX;
         const { clientWidth } = e.currentTarget;
@@ -129,16 +139,15 @@ export function BrandHeroSlider() {
     >
       <div className="absolute inset-0 overflow-clip">
         <div
-          onTransitionStart={() => {
-            slider.current.isTransitioning = true;
-          }}
+          onTransitionStart={() => (slider.current.isTransitioning = true)}
           onTransitionEnd={() => {
             slider.current.isTransitioning = false;
+            if (slider.current.reset.start) resetSlider();
           }}
           style={{
             transform: `translateX(calc(${-slideX}% - 100%))`,
           }}
-          className={`flex size-full transition-transform ${slider.current.reset?.active ? "duration-0" : ""} ${touch.current.active ? "duration-0" : ""} *:size-full *:shrink-0 *:object-cover *:object-center`}
+          className={`ease-smooth flex size-full transition-transform *:size-full *:shrink-0 *:object-cover *:object-center ${touch.current.active || isResetting ? "duration-0" : "duration-[0.8s]"}`}
         >
           <img
             src="https://picsum.photos/id/292/1200/800"
@@ -161,23 +170,20 @@ export function BrandHeroSlider() {
       </div>
       <div className="absolute inset-0 hidden items-center justify-between px-2 md:flex">
         <CrouselBtn
-          onMouseEnter={() => setAutoPlay(false)}
-          onMouseLeave={() => setAutoPlay(true)}
+          onMouseEnter={() => setIsAutoPlay(false)}
+          onMouseLeave={() => setIsAutoPlay(true)}
           onClick={() => {
-            if (slider.current.isTransitioning || slider.current.reset.start) {
-              return;
-            }
+            if (slider.current.reset.start) return;
+            //i have shifited it from isResetting to this, because when reset should have i need transition to end to initiate rest, if i do not block input then transition will not end utill user stops by then because i have done ther reset and the user is just shifting an shifting they will skip flex track and see empty space.
             updateSlider(100, "backward");
           }}
           direction="left"
         />
         <CrouselBtn
-          onMouseEnter={() => setAutoPlay(false)}
-          onMouseLeave={() => setAutoPlay(true)}
+          onMouseEnter={() => setIsAutoPlay(false)}
+          onMouseLeave={() => setIsAutoPlay(true)}
           onClick={() => {
-            if (slider.current.isTransitioning || slider.current.reset.start) {
-              return;
-            }
+            if (slider.current.reset.start) return;
             updateSlider(100, "forward");
           }}
           direction="right"
@@ -187,7 +193,12 @@ export function BrandHeroSlider() {
         {Array.from({ length: 6 }).map((el, i) => {
           //send this cutom made array to useRef it will save use array creation loop so good you know.
           const active = "bg-white! px-2! transition-[padding]";
-          return <span key={i} className={imgCount === i ? active : ""}></span>;
+          return (
+            <span
+              key={i}
+              className={slider.current.imgCount === i ? active : ""}
+            ></span>
+          );
         })}
       </div>
     </div>

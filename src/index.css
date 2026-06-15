@@ -9,6 +9,7 @@
   --breakpoint-mini-sm: 20rem;
   --animate-slide: slide 5s linear infinite;
   --animate-delayed-slide: delayed-slide 5s linear 2.5s infinite;
+  --ease-smooth: ease;
 
   @keyframes slide {
     0% {
