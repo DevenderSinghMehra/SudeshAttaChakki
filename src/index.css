@@ -10,6 +10,7 @@
   --animate-slide: slide 5s linear infinite;
   --animate-delayed-slide: delayed-slide 5s linear 2.5s infinite;
   --ease-smooth: ease;
+  --radius-xxl: 15px;
 
   @keyframes slide {
     0% {

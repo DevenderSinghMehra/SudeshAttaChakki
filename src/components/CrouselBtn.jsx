@@ -14,7 +14,7 @@ export function CrouselBtn({ direction, onClick, onMouseEnter, onMouseLeave }) {
     >
       <SpriteIcon
         className={`size-5 ${direction === "left" ? "rotate-180" : ""}`}
-        iconName="chevronArrowRight"
+        iconName="chevron-arrow-right"
       />
     </button>
   );
