@@ -1,4 +1,4 @@
-import { CustomSlider } from "../CustomSlider";
+import { CustomSlider } from "../../CustomSlider";
 export function BrandHeroSlider() {
   const images = [
     "https://picsum.photos/id/10/1200/800",
