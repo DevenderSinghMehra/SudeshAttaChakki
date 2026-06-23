@@ -1,16 +1,24 @@
-@import url("https://fonts.googleapis.com/css2?family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@700&family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+/* //!later (take off lato as well i am not using it as of now) when you get done with other works deduct fonts that are not in use, to make the font import size less. for lato i have done it but for other please see your self. */
 @import "tailwindcss";
 
 @theme {
   --font-merriweather: "Merriweather", serif;
   --font-poppins: "Poppins", sans-serif;
   --font-open-sans: "Open Sans", sans-serif;
+  --font-libre-baskerville: "Libre Baskerville", sans-serif;
   --color-bread: #fcf5de;
+  --color-cream: #fff5dc;
+  --color-golden-amber: #dca639;
+  --color-warm-cream: #fff4e0;
+  --color-maroom: #531600;
   --breakpoint-mini-sm: 20rem;
+  --breakpoint-mid-sm: 28.75rem;
   --animate-slide: slide 5s linear infinite;
   --animate-delayed-slide: delayed-slide 5s linear 2.5s infinite;
   --ease-smooth: ease;
   --radius-xxl: 15px;
+  --shadow-btn: 0 0px 10.2px -2.55px #00000030;
 
   @keyframes slide {
     0% {
