@@ -15,7 +15,7 @@ export function BrandYourAttaSection() {
         titleText="Your Atta, Your Way"
         subTitleText="enter your text here"
       />
-      <div className="px-5 pt-14 md:flex md:justify-center md:gap-x-2 lg:gap-x-4">
+      <div className="px-5 mt-14 md:flex md:justify-center md:gap-x-2 lg:gap-x-4">
         <div className="max-md:mb-13.75 lg:grid lg:w-140 lg:grid-cols-[1.5fr_2.25fr] lg:gap-4">
           <BrandYourAttaStepCard
             imgWidthStyles="w-37 max-[372px]:w-[max(108px,42%)]"

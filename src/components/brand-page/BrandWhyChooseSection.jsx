@@ -15,7 +15,7 @@ export function BrandWhyChooseSection(params) {
         titleText="Why Choose Us"
         subTitleText="we ensure your nourishment remains clean, authentic, and trustworthy."
       />
-      <div className="bg-cream mx-auto mt-7 max-w-240 px-4 py-5 transition-all min-[480px]:px-6 min-[480px]:pt-7 lg:px-8.5 lg:pt-8">
+      <div className="bg-cream mx-auto mt-14 max-w-240 px-4 py-5 transition-all min-[480px]:px-6 min-[480px]:pt-7 lg:px-8.5 lg:pt-8">
         <BrandWhyChooseTextBox
           title={
             <>
@@ -108,7 +108,7 @@ export function BrandWhyChooseSection(params) {
             onClick={() => setIsReadMore(!isReadMore)}
             className="font-poppins rounded-md bg-black/12 px-3 py-2 text-sm active:bg-black/20"
           >
-            Read More
+            {isReadMore ? "Read Less" : "Read More"}
           </button>
         </div>
       </div>

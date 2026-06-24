@@ -1,7 +1,8 @@
 import { SpriteIcon } from "../../SpriteIcon";
 
 export function BrandTestimonialTextBox({
-  bgClassName='bg-maroom',
+  extraClassNames = "",
+  bgClassName = "bg-maroom",
   isQuoteVisible = false,
   userName,
   userOccupation,
@@ -10,7 +11,7 @@ export function BrandTestimonialTextBox({
 }) {
   return (
     <div
-      className={`relative rounded-xl ${bgClassName} px-5 py-3.75 ${isTextBlack ? "text-black" : "text-white"} `}
+      className={`relative rounded-xl ${bgClassName} px-5 py-3.75 ${isTextBlack ? "text-black" : "text-white"} ${extraClassNames} `}
     >
       {isQuoteVisible && (
         <SpriteIcon
@@ -19,8 +20,8 @@ export function BrandTestimonialTextBox({
         />
       )}
       <span className="flex items-center">
-        <span className="mr-5 inline-block h-14 w-14.25 rounded-[10px] bg-amber-500"></span>
-        <div className="">
+        <span className="mr-5 inline-block h-14 w-14.25 shrink-0 rounded-[10px] bg-amber-500"></span>
+        <div>
           <h6 className="font-merriweather font-bold">{userName}</h6>
           <p className="font-poppins text-xs">{userOccupation}</p>
         </div>

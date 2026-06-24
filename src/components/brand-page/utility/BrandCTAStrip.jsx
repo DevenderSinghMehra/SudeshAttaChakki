@@ -35,13 +35,20 @@ export function BrandCTAStrip() {
           </p>
         </div>
       </div>
-      <span className="bg-bread rounded-xxl flex w-[clamp(142px,35%,168px)] flex-col p-4 pt-2 sm:shrink-0 md:pt-3">
+      <span className="bg-bread rounded-xxl w-[clamp(142px,35%,168px)] p-4 pt-2 sm:shrink-0 md:pt-3">
         <SlidingText text="Connect With Us" />
         {/* create a slider text logic resuable componet where you jsut give your text and when you want it to run and all set. */}
-        <SpriteIcon
-          className="m-auto size-20 cursor-pointer active:opacity-70 md:size-21"
-          iconName="whatsapp-icon"
-        />
+        <a
+          href="https://wa.me/919876543210?text=Hello"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-3 block cursor-pointer"
+        >
+          <SpriteIcon
+            className="mx-auto size-20 active:opacity-70 md:size-21"
+            iconName="whatsapp-icon"
+          />
+        </a>
       </span>
       <BrandYourAttaWaySteps />
     </div>
