@@ -8,7 +8,7 @@ export function BrandWhyChooseTextBox({ title, info }) {
         </h4>
         <p className="font-poppins mt-3 text-sm [&>b]:font-semibold">{info}</p>
       </div>
-      <div className="ml-3.5 h-51 shrink-0 rounded-sm bg-amber-500 max-lg:w-[max(96px,20vw)] lg:h-45 lg:w-52"></div>
+      <div className="ml-3.5 h-51 shrink-0 rounded-sm bg-amber-500 bg-cover bg-center max-lg:w-[max(96px,20vw)] lg:h-45 lg:w-52"></div>
     </div>
   );
 }
