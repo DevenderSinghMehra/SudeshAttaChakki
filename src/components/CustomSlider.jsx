@@ -3,7 +3,6 @@ import { CrouselBtn } from "./CrouselBtn";
 
 export function CustomSlider({ images }) {
   //!later convert it, into verticle slider as well.
-
   const slider = useRef({
     sliderWidth: 0,
     isTransitioning: false,
@@ -44,7 +43,7 @@ export function CustomSlider({ images }) {
     return () => clearInterval(slider.current.autoPlayId);
   }, [isautoPlay]);
   //!there is still a problem on fast reset request, transition duration-0 is not happening it is not too much but in between it is happening.
-  
+
   useEffect(() => {
     if (isResetting) setIsResetting(false);
   }, [isResetting]);

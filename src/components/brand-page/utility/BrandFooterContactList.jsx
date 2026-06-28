@@ -26,12 +26,12 @@ export function BrandFooterContactList({
   ];
 
   return (
-    <div className="max-md:col-span-2">
+    <div className="max-md:col-span-full">
       <h3 className="mb-2 font-semibold">Contact Us</h3>
       <address className="not-italic">
         <ul className="*:not-last:mb-1">
-          {listDetails.map(({ iconName, href, info }) => (
-            <li>
+          {listDetails.map(({ iconName, href, info }, i) => (
+            <li key={i}>
               <a
                 className="flex items-center gap-x-2 lg:hover:*:size-5"
                 href={href}

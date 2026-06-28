@@ -46,8 +46,8 @@ export function BrandTestimonialSection(params) {
           />
         </div>
         <div className="mx-auto h-[min(80svh,650px)] w-[min(100%,312px)] rounded-xl bg-[url(https://i.pinimg.com/736x/f5/0a/0f/f50a0fa0e97e68b634a6d11e1ede09eb.jpg)] bg-cover bg-center max-lg:mt-19 md:shrink-0 lg:h-auto lg:max-w-64"></div>
+        {/* //!for this section ensure its heights maches as it was in the original design, and then have funciton for this video player where it expands when user clicks. there fore we do not need a vertical whole layount to que it is video even without that layout we can signal that and later a click and player will expands so it is fine. */}
       </div>
-      
     </section>
   );
 }

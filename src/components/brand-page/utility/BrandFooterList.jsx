@@ -3,8 +3,8 @@ export function BrandFooterList({ heading, listArr }) {
     <div>
       <h3 className="mb-2 font-semibold">{heading}</h3>
       <ul>
-        {listArr.map((text) => (
-          <li>
+        {listArr.map((text, i) => (
+          <li key={i}>
             <a href="">{text}</a>
           </li>
         ))}
