@@ -35,7 +35,7 @@ export function BrandVarietySection() {
           <span className="font-poppins text-sm">
             Visit Store
           </span>
-          <SpriteIcon className="ml-2 size-4.5" iconName="arrow-left" />
+          <SpriteIcon className="ml-2 size-4.5 stroke-[#6f2419]" iconName="arow-right" />
         </button>
       </div>
     </section>

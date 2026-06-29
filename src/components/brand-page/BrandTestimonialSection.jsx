@@ -25,13 +25,11 @@ export function BrandTestimonialSection(params) {
             userReview="No stock waiting on shelves. Every batch of flour is ground only when you order it. We don’t chase shortcuts with preservatives or pre-packaged stock. What you get isn’t “as fresh as the farm harvest,” but it is “as fresh as a mill can make”."
           />
           <BrandTestimonialTextBox
-            extraClassNames=""
             userName="Meera Gupta"
             userOccupation="Homemaker"
             userReview="No stock waiting on shelves. Every batch of flour is ground only when you order it. We don’t chase shortcuts."
           />
           <BrandTestimonialTextBox
-            extraClassNames=""
             bgClassName="bg-cream"
             isTextBlack={true}
             userName="Rahul Gupta"
@@ -45,7 +43,12 @@ export function BrandTestimonialSection(params) {
             userReview="No stock waiting on shelves. Every batch of flour is ground only when you order it. We don’t chase shortcuts with preservatives or pre-packaged stock. What you get isn’t “as fresh as the farm harvest,” but it is “as fresh as a mill can make”."
           />
         </div>
-        <div className="mx-auto h-[min(80svh,650px)] w-[min(100%,312px)] rounded-xl bg-[url(https://i.pinimg.com/736x/f5/0a/0f/f50a0fa0e97e68b634a6d11e1ede09eb.jpg)] bg-cover bg-center max-lg:mt-19 md:shrink-0 lg:h-auto lg:max-w-64"></div>
+        <div className="mx-auto h-[min(80svh,650px)] w-[min(100%,312px)] rounded-xl bg-[url(https://i.pinimg.com/736x/f5/0a/0f/f50a0fa0e97e68b634a6d11e1ede09eb.jpg)] bg-cover bg-center max-lg:mt-19 md:shrink-0 lg:h-auto lg:max-w-64">
+          //have alot of text in this one for default fluid responsiveness it is
+          unventional but it can give use what we always wanted. so go for it.
+          and refactor the grid as well make it only grid it will work
+          well.{" "}
+        </div>
         {/* //!for this section ensure its heights maches as it was in the original design, and then have funciton for this video player where it expands when user clicks. there fore we do not need a vertical whole layount to que it is video even without that layout we can signal that and later a click and player will expands so it is fine. */}
       </div>
     </section>

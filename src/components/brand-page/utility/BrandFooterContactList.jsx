@@ -34,6 +34,8 @@ export function BrandFooterContactList({
             <li key={i}>
               <a
                 className="flex items-center gap-x-2 lg:hover:*:size-5"
+                target="_blank"
+                rel="noopener noreferrer"
                 href={href}
               >
                 <SpriteIcon
