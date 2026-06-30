@@ -1,8 +1,11 @@
-export function BrandWhyChooseTextBox({ title, info }) {
+export function BrandWhyChooseTextBox({ isAriaHidden, title, info }) {
   // !text should be little big in large screens take care of it later.
   return (
-    <div className={`mb-10 flex last:mb-0 md:items-center lg:justify-between`}>
-      <div className="h-fit max-w-151.25">
+    <div
+      aria-hidden={isAriaHidden}
+      className="mb-10 flex last:mb-0 aria-hidden:hidden md:items-center lg:justify-between"
+    >
+      <div className=" h-fit max-w-151.25">
         <h4 className="font-merriweather text-xl font-bold">
           {title} <br className="sm:hidden" />
         </h4>

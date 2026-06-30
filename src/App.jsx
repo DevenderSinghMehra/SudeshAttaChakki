@@ -6,6 +6,7 @@ import { BrandYourAttaSection } from "./components/brand-page/BrandYourAttaSecti
 import { BrandWhyChooseSection } from "./components/brand-page/BrandWhyChooseSection";
 import { BrandTestimonialSection } from "./components/brand-page/BrandTestimonialSection";
 import { BrandFooter } from "./components/brand-page/BrandFooter";
+
 function App() {
   return (
     <>

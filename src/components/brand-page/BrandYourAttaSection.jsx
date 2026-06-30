@@ -6,6 +6,7 @@ import { BrandYourAttaStepCard } from "./utility/BrandYourAttaStepCard";
 import { BrandYourAttaStepCardBadge } from "./utility/BrandYourAttaStepCardBadge";
 
 export function BrandYourAttaSection() {
+  // !make it grid only later the roi as of now is less so i am not doing it now. as from performance and clarity pov it is still solid, it is jsut when one can do why use 2. but again even if you left it, it will be ok this is low roi change. 
   return (
     <section
       style={{ backgroundImage: `url(${mudPaper})` }}
@@ -15,7 +16,7 @@ export function BrandYourAttaSection() {
         titleText="Your Atta, Your Way"
         subTitleText="enter your text here"
       />
-      <div className="px-5 mt-14 md:flex md:justify-center md:gap-x-2 lg:gap-x-4">
+      <div className="mt-14 px-5 md:flex md:justify-center md:gap-x-2 lg:gap-x-4">
         <div className="max-md:mb-13.75 lg:grid lg:w-140 lg:grid-cols-[1.5fr_2.25fr] lg:gap-4">
           <BrandYourAttaStepCard
             imgWidthStyles="w-37 max-[372px]:w-[max(108px,42%)]"
@@ -30,7 +31,7 @@ export function BrandYourAttaSection() {
               </>
             }
           />
-
+          {/* //*card 2 */}
           <div className="bg-cream relative mx-auto mb-1 rounded-[10px] p-5 max-lg:max-w-80.5 md:mb-2 lg:mb-0 lg:w-full lg:p-7.5">
             <div className="flex items-center lg:items-start">
               <h4 className="font-merriweather mb-0.5 text-xl font-bold lg:text-2xl">
@@ -51,6 +52,8 @@ export function BrandYourAttaSection() {
               positions="-bottom-4 -right-4"
             />
           </div>
+          {/* //*card 2 */}
+
           <div className="h-full w-full rounded-[10px] bg-amber-300 max-lg:hidden"></div>
           <BrandYourAttaStepCard
             imgWidthStyles="w-30.25  max-[372px]:w-[max(100px,35%)] lg:hidden "

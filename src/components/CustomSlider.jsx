@@ -1,13 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { CrouselBtn } from "./CrouselBtn";
+import { flushSync } from "react-dom";
 
-export function CustomSlider({ images }) {
+export function CustomSlider({ images, transitionDuration, autoPlayDuration }) {
+  // onces done working with sider ensure it uses optimized img
   //!later convert it, into verticle slider as well.
   const slider = useRef({
     sliderWidth: 0,
     isTransitioning: false,
     autoPlayId: 0,
-    autoPlayDuration: 5000,
     currentImgIndex: 0,
     totalImgCount: images.length,
     reset: {
@@ -27,36 +28,37 @@ export function CustomSlider({ images }) {
     endPoint: 0,
   });
   const [slideX, setSlideX] = useState(0);
-  const [isautoPlay, setIsAutoPlay] = useState(true);
+  const [isAutoPlay, setIsAutoPlay] = useState(true);
   const [isResetting, setIsResetting] = useState(false);
 
   useEffect(() => {
-    if (!isautoPlay) {
+    if (!isAutoPlay) {
       clearInterval(slider.current.autoPlayId);
       slider.current.autoPlayId = 0;
     } else {
       slider.current.autoPlayId = setInterval(() => {
         updateSlider(100, "forward");
-      }, slider.current.autoPlayDuration);
+      }, autoPlayDuration);
     }
 
     return () => clearInterval(slider.current.autoPlayId);
-  }, [isautoPlay]);
-  //!there is still a problem on fast reset request, transition duration-0 is not happening it is not too much but in between it is happening.
+  }, [isAutoPlay]);
 
-  useEffect(() => {
+  /*  useEffect(() => {
     if (isResetting) setIsResetting(false);
   }, [isResetting]);
-
+ */
   function resetSlider() {
     const { action } = slider.current.reset;
     // --
-    const resetValue = action === "toStart" ? 0 : 5 * 100;
+    const resetValue =
+      action === "toStart" ? 0 : (slider.current.totalImgCount - 1) * 100;
     setSlideX(resetValue);
     swipe.current.accumulatedSwipeX = resetValue;
     slider.current.reset.action = null;
     slider.current.reset.start = false;
-    setIsResetting(true);
+    flushSync(() => setIsResetting(true));
+    requestAnimationFrame(() => setIsResetting(false));
   }
 
   function updateSlider(value, action) {
@@ -71,7 +73,7 @@ export function CustomSlider({ images }) {
         slider.current.reset.start = true;
         slider.current.reset.action = "toEnd";
         slider.current.currentImgIndex = 5;
-      } else if (pointer === 6) {
+      } else if (pointer === slider.current.totalImgCount) {
         slider.current.reset.start = true;
         slider.current.reset.action = "toStart";
         slider.current.currentImgIndex = 0;
@@ -132,7 +134,7 @@ export function CustomSlider({ images }) {
       onPointerLeave={() => {
         if (touch.current.active) invokeSliderUpdate();
       }}
-      className={`relative h-full min-h-95 ${touch.current.active ? "cursor-grabbing" : "cursor-grab"} touch-pan-y select-none`}
+      className={`relative h-full ${touch.current.active ? "cursor-grabbing" : "cursor-grab"} touch-pan-y select-none`}
     >
       <div className="absolute inset-0 overflow-clip">
         <div
@@ -143,18 +145,25 @@ export function CustomSlider({ images }) {
           }}
           style={{
             transform: `translateX(calc(${-slideX}% - 100%))`,
+            transitionDuration: `${touch.current.active || isResetting ? "0ms" : transitionDuration}`,
           }}
-          className={`ease-smooth flex size-full transition-transform *:size-full *:shrink-0 *:object-cover *:object-center ${touch.current.active || isResetting ? "duration-0" : "duration-[0.8s]"}`}
+          className="ease-smooth flex size-full transition-transform *:size-full *:shrink-0 *:object-cover *:object-center"
         >
           <img
             src={images[slider.current.totalImgCount - 1]}
             draggable="false"
-            aria-label="last-clone"
+            data-clone="last"
+            aria-hidden="true"
           />
           {images.map((imgPath, i) => (
             <img src={imgPath} key={i} draggable="false" />
           ))}
-          <img src={images[0]} draggable="false" aria-label="first-clone" />
+          <img
+            src={images[0]}
+            draggable="false"
+            data-clone="first"
+            aria-hidden="true"
+          />
         </div>
       </div>
       <div className="absolute inset-0 hidden items-center justify-between px-2 md:flex">

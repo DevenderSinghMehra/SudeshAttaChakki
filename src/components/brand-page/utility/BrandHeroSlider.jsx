@@ -9,5 +9,13 @@ export function BrandHeroSlider() {
     "https://picsum.photos/id/292/1200/800",
   ];
 
-  return <CustomSlider images={images} />;
+  return (
+    <div className="flex-1">
+      <CustomSlider
+        images={images}
+        transitionDuration="0.8s"
+        autoPlayDuration={5000}
+      />
+    </div>
+  );
 }

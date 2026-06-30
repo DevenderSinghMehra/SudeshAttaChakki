@@ -5,7 +5,7 @@ import { BrandYourAttaWaySteps } from "./BrandYourAttaWaySteps";
 export function BrandCTAStrip() {
   //!later i want to implement, slide ability for CTA strip as teh whole strip is not visible as of now and i want to ensure it remains there only slider can save use. funthing i want to implement it with my custom slider logic. lets say iam posponing to not stop the progress in between.
   return (
-    <div className="font-poppins flex shrink-0 gap-x-1.5 px-1.5 pb-1.5 md:gap-x-1.75 md:px-1.75 md:pb-1.75">
+    <div className="font-poppins flex  shrink-0 gap-x-1.5 px-1.5 pb-1.5 md:gap-x-1.75 md:px-1.75 md:pb-1.75">
       <div className="bg-bread rounded-xxl relative w-[max(232px,75%)] px-4.5 pt-2 pb-3 sm:w-[min(400px,50%)] sm:shrink-0 md:pt-3">
         <button className="rounded-tr-xxl absolute top-0 right-0 cursor-pointer rounded-bl-sm bg-black/12 px-2.5 py-1.25">
           <SpriteIcon
