@@ -1,16 +1,21 @@
 import { useEffect, useRef, useState } from "react";
 import { CrouselBtn } from "./CrouselBtn";
 import { flushSync } from "react-dom";
+import { OptimizedImg } from "./OptimizedImg";
 
-export function CustomSlider({ images, transitionDuration, autoPlayDuration }) {
-  // onces done working with sider ensure it uses optimized img
+export function CustomSlider({
+  transitionDuration,
+  autoPlayDuration,
+  imgNameArr,
+}) {
   //!later convert it, into verticle slider as well.
+
   const slider = useRef({
     sliderWidth: 0,
     isTransitioning: false,
     autoPlayId: 0,
-    currentImgIndex: 0,
-    totalImgCount: images.length,
+    totalSlideCount: imgNameArr.length,
+    currentSlideIndexCount: 0,
     reset: {
       start: false,
       action: null,
@@ -27,7 +32,7 @@ export function CustomSlider({ images, transitionDuration, autoPlayDuration }) {
     startPoint: 0,
     endPoint: 0,
   });
-  const [slideX, setSlideX] = useState(0);
+  const [translateX, setTranslateX] = useState(0);
   const [isAutoPlay, setIsAutoPlay] = useState(true);
   const [isResetting, setIsResetting] = useState(false);
 
@@ -44,16 +49,13 @@ export function CustomSlider({ images, transitionDuration, autoPlayDuration }) {
     return () => clearInterval(slider.current.autoPlayId);
   }, [isAutoPlay]);
 
-  /*  useEffect(() => {
-    if (isResetting) setIsResetting(false);
-  }, [isResetting]);
- */
+
   function resetSlider() {
     const { action } = slider.current.reset;
     // --
     const resetValue =
-      action === "toStart" ? 0 : (slider.current.totalImgCount - 1) * 100;
-    setSlideX(resetValue);
+      action === "toStart" ? 0 : (slider.current.totalSlideCount - 1) * 100;
+    setTranslateX(resetValue);
     swipe.current.accumulatedSwipeX = resetValue;
     slider.current.reset.action = null;
     slider.current.reset.start = false;
@@ -63,7 +65,7 @@ export function CustomSlider({ images, transitionDuration, autoPlayDuration }) {
 
   function updateSlider(value, action) {
     // --
-    setSlideX((prev) => {
+    setTranslateX((prev) => {
       const definedSlide = action === "forward" ? prev + value : prev - value;
       // --
       const pointer = definedSlide / 100;
@@ -72,13 +74,14 @@ export function CustomSlider({ images, transitionDuration, autoPlayDuration }) {
       if (pointer === -1) {
         slider.current.reset.start = true;
         slider.current.reset.action = "toEnd";
-        slider.current.currentImgIndex = 5;
-      } else if (pointer === slider.current.totalImgCount) {
+        slider.current.currentSlideIndexCount =
+          slider.current.totalSlideCount - 1;
+      } else if (pointer === slider.current.totalSlideCount) {
         slider.current.reset.start = true;
         slider.current.reset.action = "toStart";
-        slider.current.currentImgIndex = 0;
+        slider.current.currentSlideIndexCount = 0;
       } else {
-        slider.current.currentImgIndex = pointer;
+        slider.current.currentSlideIndexCount = pointer;
       }
       // --
       return definedSlide;
@@ -95,7 +98,7 @@ export function CustomSlider({ images, transitionDuration, autoPlayDuration }) {
       updateSlider(100 - currentSwipeX, "forward");
     } else if (currentSwipeX <= -15) {
       updateSlider(100 + currentSwipeX, "backward");
-    } else setSlideX((prevState) => prevState - currentSwipeX); //reset it back to where it was.
+    } else setTranslateX((prevState) => prevState - currentSwipeX); //reset it back to where it was.
   }
 
   return (
@@ -123,7 +126,7 @@ export function CustomSlider({ images, transitionDuration, autoPlayDuration }) {
           const deltaX = startPoint - endPoint;
           const swipeX = Math.round((deltaX / sliderWidth) * 100);
 
-          setSlideX(accumulatedSwipeX + swipeX);
+          setTranslateX(accumulatedSwipeX + swipeX);
           swipe.current.currentSwipeX = swipeX;
           if (!active) touch.current.active = true; //touch active is there to signal user made movement after pointer down not just pointer down.
         }
@@ -144,26 +147,19 @@ export function CustomSlider({ images, transitionDuration, autoPlayDuration }) {
             if (slider.current.reset.start) resetSlider();
           }}
           style={{
-            transform: `translateX(calc(${-slideX}% - 100%))`,
+            transform: `translateX(calc(${-translateX}% - 100%))`,
             transitionDuration: `${touch.current.active || isResetting ? "0ms" : transitionDuration}`,
           }}
           className="ease-smooth flex size-full transition-transform *:size-full *:shrink-0 *:object-cover *:object-center"
         >
-          <img
-            src={images[slider.current.totalImgCount - 1]}
-            draggable="false"
+          <OptimizedImg
+            imgName={imgNameArr[imgNameArr.length - 1]}
             data-clone="last"
-            aria-hidden="true"
           />
-          {images.map((imgPath, i) => (
-            <img src={imgPath} key={i} draggable="false" />
+          {imgNameArr.map((imgName, i) => (
+            <OptimizedImg imgName={imgName} isLoadFast={i === 0} />
           ))}
-          <img
-            src={images[0]}
-            draggable="false"
-            data-clone="first"
-            aria-hidden="true"
-          />
+          <OptimizedImg imgName={imgNameArr[0]} data-clone="first" />
         </div>
       </div>
       <div className="absolute inset-0 hidden items-center justify-between px-2 md:flex">
@@ -187,12 +183,14 @@ export function CustomSlider({ images, transitionDuration, autoPlayDuration }) {
         />
       </div>
       <div className="absolute right-0 bottom-0 left-0 text-center *:inline-block *:rounded-full *:bg-black/70 *:p-1 *:not-last:mr-0.5">
-        {Array.from({ length: slider.current.totalImgCount }).map((el, i) => {
+        {Array.from({ length: slider.current.totalSlideCount }).map((el, i) => {
           const active = "bg-white! px-2! transition-[padding]";
           return (
             <span
               key={i}
-              className={slider.current.currentImgIndex === i ? active : ""}
+              className={
+                slider.current.currentSlideIndexCount === i ? active : ""
+              }
             ></span>
           );
         })}

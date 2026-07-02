@@ -3,7 +3,7 @@ import mudPaper from "/src/assets/mudPaper.webp";
 import { BrandFooterList } from "./utility/BrandFooterList";
 import { BrandFooterContactList } from "./utility/BrandFooterContactList";
 import { SpriteIcon } from "../SpriteIcon";
-import { OptimizedImg } from "./OptimizedImg";
+import { OptimizedImg } from "../OptimizedImg";
 
 export function BrandFooter(params) {
   // !this is a design convery i was liking the bg with sky, from the image but earlier i designed it differenly now suddenly i do no want to change teh design decision plus the impacts get less maybe it can be helpfull though sky brings in space makes thing feel lightly but it might nog well with the layout. think about this later.
@@ -23,21 +23,20 @@ export function BrandFooter(params) {
         <OptimizedImg
           imgName="cropFieldBackground"
           className="absolute inset-0 size-full object-cover object-top opacity-50"
-          sizes="100vw"
           isAriaHidden={true}
           isDraggable={false}
         />
         <OptimizedImg
           imgName="crop"
           className="absolute -bottom-10 -left-4 z-10 size-40 sm:size-40 lg:-bottom-15 lg:-left-5 lg:size-50"
-          sizes="100vw"
+          sizes="50vw"
           isAriaHidden={true}
           isDraggable={false}
         />
         <OptimizedImg
           imgName="crop"
           className="absolute -right-4 -bottom-12 z-10 size-40 scale-x-[-1] max-[370px]:hidden min-[468px]:size-50 md:size-55 lg:-right-5 lg:-bottom-15 lg:size-60"
-          sizes="100vw"
+          sizes="50vw"
           isAriaHidden={true}
           isDraggable={false}
         />

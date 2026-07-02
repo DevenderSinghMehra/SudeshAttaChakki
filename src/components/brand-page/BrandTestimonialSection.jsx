@@ -1,7 +1,7 @@
 import { BrandSectionTitle } from "./utility/BrandSectionTitle";
 import mudPaper from "../../assets/mudPaper.webp";
 import { BrandTestimonialTextBox } from "./utility/BrandTestimonialTextBox";
-import { OptimizedImg } from "./OptimizedImg";
+import { OptimizedImg } from "../OptimizedImg";
 
 export function BrandTestimonialSection(params) {
   /*//! add this to video player
