@@ -7,6 +7,7 @@ export function CustomSlider({
   transitionDuration,
   autoPlayDuration,
   imgNameArr,
+  isAutoPlayEnabled = false,
 }) {
   //!later convert it, into verticle slider as well.
 
@@ -33,22 +34,24 @@ export function CustomSlider({
     endPoint: 0,
   });
   const [translateX, setTranslateX] = useState(0);
-  const [isAutoPlay, setIsAutoPlay] = useState(true);
+  const [isAutoPlay, setIsAutoPlay] = useState(isAutoPlayEnabled);
   const [isResetting, setIsResetting] = useState(false);
 
   useEffect(() => {
+    if (!isAutoPlayEnabled) return;
+    // --
     if (!isAutoPlay) {
       clearInterval(slider.current.autoPlayId);
       slider.current.autoPlayId = 0;
     } else {
       slider.current.autoPlayId = setInterval(() => {
+        if (slider.current.reset.start) return;//*this condition make autoplay high level effective though rarely needed but keeping it is trivial so i am keep it.
         updateSlider(100, "forward");
       }, autoPlayDuration);
     }
 
     return () => clearInterval(slider.current.autoPlayId);
-  }, [isAutoPlay]);
-
+  }, [isAutoPlay, autoPlayDuration, isAutoPlayEnabled]);
 
   function resetSlider() {
     const { action } = slider.current.reset;
@@ -89,9 +92,9 @@ export function CustomSlider({
   }
 
   function invokeSliderUpdate() {
+    setIsAutoPlay(true); //the reason it is here only as, only for touch swipe i need to re-enable it like this i can put it at a different palce but that will nto be very effective aka extra re-render.
     touch.current.focused = false;
     touch.current.active = false;
-    setIsAutoPlay(true);
     const { currentSwipeX } = swipe.current;
     // --
     if (currentSwipeX >= 15) {
@@ -108,7 +111,7 @@ export function CustomSlider({
           return;
         }
         // *i wanted to allow to this touch even during transtion, but i think as per ux it is not important let then user see thing full or not see at all.
-        setIsAutoPlay(false);
+        if (isAutoPlayEnabled) setIsAutoPlay(false);
         touch.current.focused = true;
         touch.current.startPoint = e.clientX;
         const { clientWidth } = e.currentTarget;
@@ -164,8 +167,8 @@ export function CustomSlider({
       </div>
       <div className="absolute inset-0 hidden items-center justify-between px-2 md:flex">
         <CrouselBtn
-          onMouseEnter={() => setIsAutoPlay(false)}
-          onMouseLeave={() => setIsAutoPlay(true)}
+          isAutoPlayEnabled={isAutoPlayEnabled}
+          setIsAutoPlay={setIsAutoPlay}
           onClick={() => {
             if (slider.current.reset.start) return;
             else updateSlider(100, "backward");
@@ -173,8 +176,8 @@ export function CustomSlider({
           direction="left"
         />
         <CrouselBtn
-          onMouseEnter={() => setIsAutoPlay(false)}
-          onMouseLeave={() => setIsAutoPlay(true)}
+          isAutoPlayEnabled={isAutoPlayEnabled}
+          setIsAutoPlay={setIsAutoPlay}
           onClick={() => {
             if (slider.current.reset.start) return;
             else updateSlider(100, "forward");
@@ -183,17 +186,20 @@ export function CustomSlider({
         />
       </div>
       <div className="absolute right-0 bottom-0 left-0 text-center *:inline-block *:rounded-full *:bg-black/70 *:p-1 *:not-last:mr-0.5">
-        {Array.from({ length: slider.current.totalSlideCount }).map((el, i) => {
-          const active = "bg-white! px-2! transition-[padding]";
-          return (
-            <span
-              key={i}
-              className={
-                slider.current.currentSlideIndexCount === i ? active : ""
-              }
-            ></span>
-          );
-        })}
+        {new Array(slider.current.totalSlideCount)
+          .fill(undefined)
+          .map((el, i) => {
+            const active = "bg-white! px-2! transition-[padding]";
+            return (
+              //later make it css only ditch the re-render style change
+              <span
+                key={i}
+                className={
+                  slider.current.currentSlideIndexCount === i ? active : ""
+                }
+              ></span>
+            );
+          })}
       </div>
     </div>
   );
