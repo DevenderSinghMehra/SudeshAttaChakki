@@ -1,13 +1,15 @@
 import { CustomSlider } from "../../CustomSlider";
-export function BrandHeroSlider() {
-  const images = [
-    "https://picsum.photos/id/10/1200/800",
-    "https://picsum.photos/id/29/1200/800",
-    "https://picsum.photos/id/1040/1200/800",
-    "https://picsum.photos/id/106/1200/800",
-    "https://picsum.photos/id/133/1200/800",
-    "https://picsum.photos/id/292/1200/800",
-  ];
+import { OptimizedImg } from "../../OptimizedImg";
 
-  return <CustomSlider images={images} />;
+export function BrandHeroSlider() {
+  return (
+    <div className="flex-1">
+      <CustomSlider
+        transitionDuration="0.8s"
+        autoPlayDuration={5000}
+        imgNameArr={["heroImg-1", "heroImg-2", "heroImg-3","heroImg-1", "heroImg-2", "heroImg-3"]}
+        isAutoPlayEnabled={true}
+      />
+    </div>
+  );
 }

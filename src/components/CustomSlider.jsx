@@ -1,16 +1,22 @@
 import { useEffect, useRef, useState } from "react";
 import { CrouselBtn } from "./CrouselBtn";
+import { flushSync } from "react-dom";
+import { OptimizedImg } from "./OptimizedImg";
 
-export function CustomSlider({ images }) {
+export function CustomSlider({
+  transitionDuration,
+  autoPlayDuration,
+  imgNameArr,
+  isAutoPlayEnabled = false,
+}) {
   //!later convert it, into verticle slider as well.
 
   const slider = useRef({
     sliderWidth: 0,
     isTransitioning: false,
     autoPlayId: 0,
-    autoPlayDuration: 5000,
-    currentImgIndex: 0,
-    totalImgCount: images.length,
+    totalSlideCount: imgNameArr.length,
+    currentSlideIndexCount: 0,
     reset: {
       start: false,
       action: null,
@@ -27,42 +33,42 @@ export function CustomSlider({ images }) {
     startPoint: 0,
     endPoint: 0,
   });
-  const [slideX, setSlideX] = useState(0);
-  const [isautoPlay, setIsAutoPlay] = useState(true);
+  const [translateX, setTranslateX] = useState(0);
+  const [isAutoPlay, setIsAutoPlay] = useState(isAutoPlayEnabled);
   const [isResetting, setIsResetting] = useState(false);
 
   useEffect(() => {
-    if (!isautoPlay) {
+    if (!isAutoPlayEnabled) return;
+    // --
+    if (!isAutoPlay) {
       clearInterval(slider.current.autoPlayId);
       slider.current.autoPlayId = 0;
     } else {
       slider.current.autoPlayId = setInterval(() => {
+        if (slider.current.reset.start) return;//*this condition make autoplay high level effective though rarely needed but keeping it is trivial so i am keep it.
         updateSlider(100, "forward");
-      }, slider.current.autoPlayDuration);
+      }, autoPlayDuration);
     }
 
     return () => clearInterval(slider.current.autoPlayId);
-  }, [isautoPlay]);
-  //!there is still a problem on fast reset request, transition duration-0 is not happening it is not too much but in between it is happening.
-  
-  useEffect(() => {
-    if (isResetting) setIsResetting(false);
-  }, [isResetting]);
+  }, [isAutoPlay, autoPlayDuration, isAutoPlayEnabled]);
 
   function resetSlider() {
     const { action } = slider.current.reset;
     // --
-    const resetValue = action === "toStart" ? 0 : 5 * 100;
-    setSlideX(resetValue);
+    const resetValue =
+      action === "toStart" ? 0 : (slider.current.totalSlideCount - 1) * 100;
+    setTranslateX(resetValue);
     swipe.current.accumulatedSwipeX = resetValue;
     slider.current.reset.action = null;
     slider.current.reset.start = false;
-    setIsResetting(true);
+    flushSync(() => setIsResetting(true));
+    requestAnimationFrame(() => setIsResetting(false));
   }
 
   function updateSlider(value, action) {
     // --
-    setSlideX((prev) => {
+    setTranslateX((prev) => {
       const definedSlide = action === "forward" ? prev + value : prev - value;
       // --
       const pointer = definedSlide / 100;
@@ -71,13 +77,14 @@ export function CustomSlider({ images }) {
       if (pointer === -1) {
         slider.current.reset.start = true;
         slider.current.reset.action = "toEnd";
-        slider.current.currentImgIndex = 5;
-      } else if (pointer === 6) {
+        slider.current.currentSlideIndexCount =
+          slider.current.totalSlideCount - 1;
+      } else if (pointer === slider.current.totalSlideCount) {
         slider.current.reset.start = true;
         slider.current.reset.action = "toStart";
-        slider.current.currentImgIndex = 0;
+        slider.current.currentSlideIndexCount = 0;
       } else {
-        slider.current.currentImgIndex = pointer;
+        slider.current.currentSlideIndexCount = pointer;
       }
       // --
       return definedSlide;
@@ -85,16 +92,16 @@ export function CustomSlider({ images }) {
   }
 
   function invokeSliderUpdate() {
+    setIsAutoPlay(true); //the reason it is here only as, only for touch swipe i need to re-enable it like this i can put it at a different palce but that will nto be very effective aka extra re-render.
     touch.current.focused = false;
     touch.current.active = false;
-    setIsAutoPlay(true);
     const { currentSwipeX } = swipe.current;
     // --
     if (currentSwipeX >= 15) {
       updateSlider(100 - currentSwipeX, "forward");
     } else if (currentSwipeX <= -15) {
       updateSlider(100 + currentSwipeX, "backward");
-    } else setSlideX((prevState) => prevState - currentSwipeX); //reset it back to where it was.
+    } else setTranslateX((prevState) => prevState - currentSwipeX); //reset it back to where it was.
   }
 
   return (
@@ -104,7 +111,7 @@ export function CustomSlider({ images }) {
           return;
         }
         // *i wanted to allow to this touch even during transtion, but i think as per ux it is not important let then user see thing full or not see at all.
-        setIsAutoPlay(false);
+        if (isAutoPlayEnabled) setIsAutoPlay(false);
         touch.current.focused = true;
         touch.current.startPoint = e.clientX;
         const { clientWidth } = e.currentTarget;
@@ -122,7 +129,7 @@ export function CustomSlider({ images }) {
           const deltaX = startPoint - endPoint;
           const swipeX = Math.round((deltaX / sliderWidth) * 100);
 
-          setSlideX(accumulatedSwipeX + swipeX);
+          setTranslateX(accumulatedSwipeX + swipeX);
           swipe.current.currentSwipeX = swipeX;
           if (!active) touch.current.active = true; //touch active is there to signal user made movement after pointer down not just pointer down.
         }
@@ -133,7 +140,7 @@ export function CustomSlider({ images }) {
       onPointerLeave={() => {
         if (touch.current.active) invokeSliderUpdate();
       }}
-      className={`relative h-full min-h-95 ${touch.current.active ? "cursor-grabbing" : "cursor-grab"} touch-pan-y select-none`}
+      className={`relative h-full ${touch.current.active ? "cursor-grabbing" : "cursor-grab"} touch-pan-y select-none`}
     >
       <div className="absolute inset-0 overflow-clip">
         <div
@@ -143,25 +150,25 @@ export function CustomSlider({ images }) {
             if (slider.current.reset.start) resetSlider();
           }}
           style={{
-            transform: `translateX(calc(${-slideX}% - 100%))`,
+            transform: `translateX(calc(${-translateX}% - 100%))`,
+            transitionDuration: `${touch.current.active || isResetting ? "0ms" : transitionDuration}`,
           }}
-          className={`ease-smooth flex size-full transition-transform *:size-full *:shrink-0 *:object-cover *:object-center ${touch.current.active || isResetting ? "duration-0" : "duration-[0.8s]"}`}
+          className="ease-smooth flex size-full transition-transform *:size-full *:shrink-0 *:object-cover *:object-center"
         >
-          <img
-            src={images[slider.current.totalImgCount - 1]}
-            draggable="false"
-            aria-label="last-clone"
+          <OptimizedImg
+            imgName={imgNameArr[imgNameArr.length - 1]}
+            data-clone="last"
           />
-          {images.map((imgPath, i) => (
-            <img src={imgPath} key={i} draggable="false" />
+          {imgNameArr.map((imgName, i) => (
+            <OptimizedImg imgName={imgName} isLoadFast={i === 0} />
           ))}
-          <img src={images[0]} draggable="false" aria-label="first-clone" />
+          <OptimizedImg imgName={imgNameArr[0]} data-clone="first" />
         </div>
       </div>
       <div className="absolute inset-0 hidden items-center justify-between px-2 md:flex">
         <CrouselBtn
-          onMouseEnter={() => setIsAutoPlay(false)}
-          onMouseLeave={() => setIsAutoPlay(true)}
+          isAutoPlayEnabled={isAutoPlayEnabled}
+          setIsAutoPlay={setIsAutoPlay}
           onClick={() => {
             if (slider.current.reset.start) return;
             else updateSlider(100, "backward");
@@ -169,8 +176,8 @@ export function CustomSlider({ images }) {
           direction="left"
         />
         <CrouselBtn
-          onMouseEnter={() => setIsAutoPlay(false)}
-          onMouseLeave={() => setIsAutoPlay(true)}
+          isAutoPlayEnabled={isAutoPlayEnabled}
+          setIsAutoPlay={setIsAutoPlay}
           onClick={() => {
             if (slider.current.reset.start) return;
             else updateSlider(100, "forward");
@@ -179,15 +186,20 @@ export function CustomSlider({ images }) {
         />
       </div>
       <div className="absolute right-0 bottom-0 left-0 text-center *:inline-block *:rounded-full *:bg-black/70 *:p-1 *:not-last:mr-0.5">
-        {Array.from({ length: slider.current.totalImgCount }).map((el, i) => {
-          const active = "bg-white! px-2! transition-[padding]";
-          return (
-            <span
-              key={i}
-              className={slider.current.currentImgIndex === i ? active : ""}
-            ></span>
-          );
-        })}
+        {new Array(slider.current.totalSlideCount)
+          .fill(undefined)
+          .map((el, i) => {
+            const active = "bg-white! px-2! transition-[padding]";
+            return (
+              //later make it css only ditch the re-render style change
+              <span
+                key={i}
+                className={
+                  slider.current.currentSlideIndexCount === i ? active : ""
+                }
+              ></span>
+            );
+          })}
       </div>
     </div>
   );

@@ -1,6 +1,18 @@
 import { SpriteIcon } from "./SpriteIcon";
 
-export function CrouselBtn({ direction, onClick, onMouseEnter, onMouseLeave }) {
+export function CrouselBtn({
+  direction,
+  onClick,
+  isAutoPlayEnabled,
+  setIsAutoPlay,
+}) {
+  const autoPlayEvents = isAutoPlayEnabled
+    ? {
+        onMouseEnter: () => setIsAutoPlay(false),
+        onMouseLeave: () => setIsAutoPlay(true),
+      }
+    : null;
+
   return (
     <button
       onPointerDown={(e) => {
@@ -8,8 +20,7 @@ export function CrouselBtn({ direction, onClick, onMouseEnter, onMouseLeave }) {
         e.preventDefault();
       }}
       onClick={onClick}
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
+      {...autoPlayEvents}
       className="font-open-sans cursor-pointer rounded-full bg-white p-4 text-4xl font-extrabold active:bg-gray-100"
     >
       <SpriteIcon

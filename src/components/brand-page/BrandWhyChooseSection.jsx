@@ -2,6 +2,7 @@ import { useState } from "react";
 import mudPaper from "../../assets/mudPaper.webp";
 import { BrandSectionTitle } from "./utility/BrandSectionTitle";
 import { BrandWhyChooseTextBox } from "./utility/BrandWhyChooseTextBox";
+import { SpriteIcon } from "../SpriteIcon";
 
 export function BrandWhyChooseSection(params) {
   const [isReadMore, setIsReadMore] = useState(false);
@@ -15,8 +16,9 @@ export function BrandWhyChooseSection(params) {
         titleText="Why Choose Us"
         subTitleText="we ensure your nourishment remains clean, authentic, and trustworthy."
       />
-      <div className="bg-cream mx-auto mt-14 max-w-240 px-4 py-5 transition-all min-[480px]:px-6 min-[480px]:pt-7 lg:px-8.5 lg:pt-8">
+      <div className="bg-cream mx-auto mt-14 max-w-240 px-4 py-5 min-[480px]:px-6 min-[480px]:pt-7 lg:px-8.5 lg:pt-8">
         <BrandWhyChooseTextBox
+          isAriaHidden={false}
           title={
             <>
               Freshness,
@@ -39,6 +41,7 @@ export function BrandWhyChooseSection(params) {
           }
         />
         <BrandWhyChooseTextBox
+          isAriaHidden={false}
           title={
             <>
               No Pre-Packaged,
@@ -55,60 +58,60 @@ export function BrandWhyChooseSection(params) {
             </>
           }
         />
-        {isReadMore && (
-          <>
-            <BrandWhyChooseTextBox
-              title={
-                <>
-                  Fresh & Hassle-Free,
-                  <br className="sm:hidden" /> Delivery
-                </>
-              }
-              info={
-                <>
-                  <b>Heavy bags, light on you.</b> We know atta can be tough to
-                  carry, especially for elders and homemakers. That’s why we
-                  chose to decide freshly milled flour straight to your
-                  doorstep. <q>No more lifting, no more trips.</q>
-                  <br />
-                  <b>
-                    — just clean, authentic, and fresh nourishment delivered
-                    with care
-                  </b>
-                </>
-              }
-            />
-            <BrandWhyChooseTextBox
-              title={
-                <>
-                  Always Learning,
-                  <br className="sm:hidden" /> Always listening
-                </>
-              }
-              info={
-                <>
-                  <b>Your health and satisfaction guide us.</b> From
-                  personalized mixes to home delivery, everything is built with
-                  you in mind.{" "}
-                  <q>
-                    We may not be perfect and we don’t want to pretend we are
-                  </q>
-                  <br />
-                  <b>
-                    — instead, we promise to keep listening, improving, and
-                    evolving with your needs.
-                  </b>
-                </>
-              }
-            />
-          </>
-        )}
-        <div className="mt-6 text-center">
+        <BrandWhyChooseTextBox
+          isAriaHidden={isReadMore ? false : true}
+          title={
+            <>
+              Fresh & Hassle-Free,
+              <br className="sm:hidden" /> Delivery
+            </>
+          }
+          info={
+            <>
+              <b>Heavy bags, light on you.</b> We know atta can be tough to
+              carry, especially for elders and homemakers. That’s why we chose
+              to decide freshly milled flour straight to your doorstep.{" "}
+              <q>No more lifting, no more trips.</q>
+              <br />
+              <b>
+                — just clean, authentic, and fresh nourishment delivered with
+                care
+              </b>
+            </>
+          }
+        />
+        <BrandWhyChooseTextBox
+          isAriaHidden={isReadMore ? false : true}
+          title={
+            <>
+              Always Learning,
+              <br className="sm:hidden" /> Always listening
+            </>
+          }
+          info={
+            <>
+              <b>Your health and satisfaction guide us.</b> From personalized
+              mixes to home delivery, everything is built with you in mind.{" "}
+              <q>We may not be perfect and we don’t want to pretend we are</q>
+              <br />
+              <b>
+                — instead, we promise to keep listening, improving, and evolving
+                with your needs.
+              </b>
+            </>
+          }
+        />
+
+        <div className="mt-6">
           <button
             onClick={() => setIsReadMore(!isReadMore)}
-            className="font-poppins rounded-md bg-black/12 px-3 py-2 text-sm active:bg-black/20"
+            className="font-poppins mx-auto flex items-center rounded-md bg-black/12 px-3 py-2 text-sm active:bg-black/20"
           >
             {isReadMore ? "Read Less" : "Read More"}
+            <SpriteIcon
+              iconName="double-downward-arrow"
+              className={`ml-2 size-3.5 transition-transform ${isReadMore && "scale-y-[-1]"}`}
+            />
           </button>
         </div>
       </div>

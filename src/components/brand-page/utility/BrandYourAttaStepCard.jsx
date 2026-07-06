@@ -23,7 +23,7 @@ export function BrandYourAttaStepCard({
         className={`h-29 ${imgWidthStyles} shrink-0 overflow-y-hidden rounded-[10px] lg:w-full`}
       >
         <img
-          className="h-full w-full object-cover object-center"
+          className="size-full object-cover object-center"
           draggable="false"
           src={cornImg}
           alt=""
