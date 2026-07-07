@@ -1,31 +1,36 @@
 import { useEffect, useRef, useState } from "react";
-import { CrouselBtn } from "./CrouselBtn";
 import { flushSync } from "react-dom";
 import { OptimizedImg } from "./OptimizedImg";
+import { HorizontalSliderNavigation } from "./HorizontalSliderNavigation";
+import { VerticalSliderNavigation } from "./VerticalSliderNavigation";
 
 export function CustomSlider({
   transitionDuration,
   autoPlayDuration,
   imgNameArr,
   isAutoPlayEnabled = false,
+  definedAxis = "X",
+  isTouchConstraint = false,
 }) {
-  //!later convert it, into verticle slider as well.
-
+  //!later do a skeleton effect for the slider.and write a logic to mount it later.
+  //!later allow scroll of the nonaxis swipe on slider, if x is axis then y should be avialble to sroll the page as of now none works.
   const slider = useRef({
-    sliderWidth: 0,
+    trackLength: 0,
     isTransitioning: false,
     autoPlayId: 0,
     totalSlideCount: imgNameArr.length,
     currentSlideIndexCount: 0,
+    boundingClientRect: null,
     reset: {
       start: false,
       action: null,
     },
   });
+  const axis = definedAxis.toUpperCase(); //?maybe i will be limiting it but i will see it later.
 
   const swipe = useRef({
-    accumulatedSwipeX: 0,
-    currentSwipeX: 0,
+    accumulatedSwipeLength: 0,
+    currentSwipeLength: 0,
   });
   const touch = useRef({
     focused: false,
@@ -33,7 +38,7 @@ export function CustomSlider({
     startPoint: 0,
     endPoint: 0,
   });
-  const [translateX, setTranslateX] = useState(0);
+  const [translate, setTranslate] = useState(0);
   const [isAutoPlay, setIsAutoPlay] = useState(isAutoPlayEnabled);
   const [isResetting, setIsResetting] = useState(false);
 
@@ -45,7 +50,7 @@ export function CustomSlider({
       slider.current.autoPlayId = 0;
     } else {
       slider.current.autoPlayId = setInterval(() => {
-        if (slider.current.reset.start) return;//*this condition make autoplay high level effective though rarely needed but keeping it is trivial so i am keep it.
+        if (slider.current.reset.start) return; //*this condition make autoplay high level effective though rarely needed but keeping it is trivial so i am keep it.
         updateSlider(100, "forward");
       }, autoPlayDuration);
     }
@@ -58,8 +63,8 @@ export function CustomSlider({
     // --
     const resetValue =
       action === "toStart" ? 0 : (slider.current.totalSlideCount - 1) * 100;
-    setTranslateX(resetValue);
-    swipe.current.accumulatedSwipeX = resetValue;
+    setTranslate(resetValue);
+    swipe.current.accumulatedSwipeLength = resetValue;
     slider.current.reset.action = null;
     slider.current.reset.start = false;
     flushSync(() => setIsResetting(true));
@@ -68,11 +73,11 @@ export function CustomSlider({
 
   function updateSlider(value, action) {
     // --
-    setTranslateX((prev) => {
+    setTranslate((prev) => {
       const definedSlide = action === "forward" ? prev + value : prev - value;
       // --
       const pointer = definedSlide / 100;
-      swipe.current.accumulatedSwipeX = definedSlide;
+      swipe.current.accumulatedSwipeLength = definedSlide;
       // --
       if (pointer === -1) {
         slider.current.reset.start = true;
@@ -92,16 +97,15 @@ export function CustomSlider({
   }
 
   function invokeSliderUpdate() {
-    setIsAutoPlay(true); //the reason it is here only as, only for touch swipe i need to re-enable it like this i can put it at a different palce but that will nto be very effective aka extra re-render.
-    touch.current.focused = false;
+    setIsAutoPlay(true);
     touch.current.active = false;
-    const { currentSwipeX } = swipe.current;
+    const { currentSwipeLength } = swipe.current;
     // --
-    if (currentSwipeX >= 15) {
-      updateSlider(100 - currentSwipeX, "forward");
-    } else if (currentSwipeX <= -15) {
-      updateSlider(100 + currentSwipeX, "backward");
-    } else setTranslateX((prevState) => prevState - currentSwipeX); //reset it back to where it was.
+    if (currentSwipeLength >= 15) {
+      updateSlider(100 - currentSwipeLength, "forward");
+    } else if (currentSwipeLength <= -15) {
+      updateSlider(100 + currentSwipeLength, "backward");
+    } else setTranslate((prevState) => prevState - currentSwipeLength); //reset it back to where it was.
   }
 
   return (
@@ -110,37 +114,37 @@ export function CustomSlider({
         if (slider.current.isTransitioning || slider.current.reset.start) {
           return;
         }
-        // *i wanted to allow to this touch even during transtion, but i think as per ux it is not important let then user see thing full or not see at all.
+        // --
         if (isAutoPlayEnabled) setIsAutoPlay(false);
         touch.current.focused = true;
-        touch.current.startPoint = e.clientX;
-        const { clientWidth } = e.currentTarget;
-        if (slider.current.sliderWidth !== clientWidth) {
-          slider.current.sliderWidth = clientWidth;
-        }
+        touch.current.startPoint = e[`client${axis}`];
+        if (isTouchConstraint) e.target.releasePointerCapture(e.pointerId);
+        const { clientWidth, clientHeight } = e.currentTarget;
+        slider.current.trackLength = axis === "X" ? clientWidth : clientHeight;
       }}
       onPointerMove={(e) => {
         if (touch.current.focused) {
-          touch.current.endPoint = e.clientX;
+          //!later thing about optimizing this callback as much as possible in 1 min active scroll it fires for more than 2k times so it is important code and should be optimized at best.
+          touch.current.endPoint = e[`client${axis}`];
           const { endPoint, startPoint, active } = touch.current;
-          const { accumulatedSwipeX } = swipe.current;
-          const { sliderWidth } = slider.current;
+          const { trackLength } = slider.current;
           // --
-          const deltaX = startPoint - endPoint;
-          const swipeX = Math.round((deltaX / sliderWidth) * 100);
-
-          setTranslateX(accumulatedSwipeX + swipeX);
-          swipe.current.currentSwipeX = swipeX;
-          if (!active) touch.current.active = true; //touch active is there to signal user made movement after pointer down not just pointer down.
+          const delta = startPoint - endPoint;
+          const measuredSwipe = Math.round((delta / trackLength) * 100);
+          swipe.current.currentSwipeLength = measuredSwipe;
+          setTranslate(swipe.current.accumulatedSwipeLength + measuredSwipe);
+          if (!active) touch.current.active = true;
         }
       }}
       onPointerUp={() => {
         if (touch.current.active) invokeSliderUpdate();
+        touch.current.focused = false;
       }}
       onPointerLeave={() => {
         if (touch.current.active) invokeSliderUpdate();
+        touch.current.focused = false;
       }}
-      className={`relative h-full ${touch.current.active ? "cursor-grabbing" : "cursor-grab"} touch-pan-y select-none`}
+      className="relative h-full cursor-grab touch-none select-none active:cursor-grabbing"
     >
       <div className="absolute inset-0 overflow-clip">
         <div
@@ -150,56 +154,41 @@ export function CustomSlider({
             if (slider.current.reset.start) resetSlider();
           }}
           style={{
-            transform: `translateX(calc(${-translateX}% - 100%))`,
+            transform: `translate${axis}(calc(${-translate}% - 100%))`,
             transitionDuration: `${touch.current.active || isResetting ? "0ms" : transitionDuration}`,
           }}
-          className="ease-smooth flex size-full transition-transform *:size-full *:shrink-0 *:object-cover *:object-center"
+          className={`ease-smooth flex size-full transition-transform *:size-full *:shrink-0 *:object-cover *:object-center ${axis === "X" ? "" : "flex-col"}`}
         >
           <OptimizedImg
             imgName={imgNameArr[imgNameArr.length - 1]}
+            isDraggable={false}
             data-clone="last"
           />
           {imgNameArr.map((imgName, i) => (
-            <OptimizedImg imgName={imgName} isLoadFast={i === 0} />
+            <OptimizedImg
+              key={i}
+              imgName={imgName}
+              isDraggable={false}
+              isLoadFast={i <= 2}
+            />
           ))}
-          <OptimizedImg imgName={imgNameArr[0]} data-clone="first" />
+          <OptimizedImg
+            imgName={imgNameArr[0]}
+            isDraggable={false}
+            data-clone="first"
+          />
         </div>
-      </div>
-      <div className="absolute inset-0 hidden items-center justify-between px-2 md:flex">
-        <CrouselBtn
-          isAutoPlayEnabled={isAutoPlayEnabled}
-          setIsAutoPlay={setIsAutoPlay}
-          onClick={() => {
-            if (slider.current.reset.start) return;
-            else updateSlider(100, "backward");
-          }}
-          direction="left"
-        />
-        <CrouselBtn
-          isAutoPlayEnabled={isAutoPlayEnabled}
-          setIsAutoPlay={setIsAutoPlay}
-          onClick={() => {
-            if (slider.current.reset.start) return;
-            else updateSlider(100, "forward");
-          }}
-          direction="right"
-        />
-      </div>
-      <div className="absolute right-0 bottom-0 left-0 text-center *:inline-block *:rounded-full *:bg-black/70 *:p-1 *:not-last:mr-0.5">
-        {new Array(slider.current.totalSlideCount)
-          .fill(undefined)
-          .map((el, i) => {
-            const active = "bg-white! px-2! transition-[padding]";
-            return (
-              //later make it css only ditch the re-render style change
-              <span
-                key={i}
-                className={
-                  slider.current.currentSlideIndexCount === i ? active : ""
-                }
-              ></span>
-            );
-          })}
+
+        {axis === "X" ? (
+          <HorizontalSliderNavigation
+            slider={slider}
+            isAutoPlayEnabled={isAutoPlayEnabled}
+            setIsAutoPlay={setIsAutoPlay}
+            updateSlider={updateSlider}
+          />
+        ) : (
+          <VerticalSliderNavigation slider={slider} />
+        )}
       </div>
     </div>
   );

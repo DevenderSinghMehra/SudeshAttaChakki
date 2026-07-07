@@ -13,7 +13,21 @@ export function BrandWhyChooseTextBox({ isAriaHidden, title, info }) {
         </h4>
         <p className="font-poppins mt-3 text-sm [&>b]:font-semibold">{info}</p>
       </div>
-      <div className="ml-3.5 h-51 shrink-0 overflow-clip rounded-sm bg-amber-300 max-lg:w-[max(96px,20vw)] lg:h-45 lg:w-52"></div>
+      <div className="ml-3.5 h-51 shrink-0 overflow-clip rounded-sm max-lg:w-[max(96px,20vw)] lg:h-45 lg:w-52">
+        <CustomSlider
+          transitionDuration="0.8s"
+          imgNameArr={[
+            "heroImg-1",
+            "heroImg-2",
+            "heroImg-3",
+            "heroImg-1",
+            "heroImg-2",
+            "heroImg-3",
+          ]}
+          isTouchConstraint={true}
+          definedAxis="Y"
+        />
+      </div>
     </div>
   );
 }

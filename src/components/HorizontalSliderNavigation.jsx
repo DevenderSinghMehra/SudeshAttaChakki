@@ -1,0 +1,51 @@
+import { CrouselBtn } from "./CrouselBtn";
+
+export function HorizontalSliderNavigation({
+  slider,
+  isAutoPlayEnabled,
+  setIsAutoPlay,
+  updateSlider,
+}) {
+  function crouselBtnClickHandler(movementDirection) {}
+
+  return (
+    <div className="absolute inset-0 flex md:flex-col">
+      <div className="hidden flex-1 px-2 md:flex md:items-center md:justify-between">
+        <CrouselBtn
+          isAutoPlayEnabled={isAutoPlayEnabled}
+          setIsAutoPlay={setIsAutoPlay}
+          onClick={() => {
+            if (slider.current.reset.start) return;
+            else updateSlider(100, "backward");
+          }}
+          pointingDirection="left"
+        />
+        <CrouselBtn
+          isAutoPlayEnabled={isAutoPlayEnabled}
+          setIsAutoPlay={setIsAutoPlay}
+          onClick={() => {
+            if (slider.current.reset.start) return;
+            else updateSlider(100, "forward");
+          }}
+          pointingDirection="right"
+        />
+      </div>
+      <div className="mx-auto text-center *:inline-block *:rounded-full *:bg-black/70 *:p-1 *:not-last:mr-0.5 max-md:self-end">
+        {new Array(slider.current.totalSlideCount)
+          .fill(undefined)
+          .map((el, i) => {
+            return (
+              <span
+                key={i}
+                className={
+                  slider.current.currentSlideIndexCount === i
+                    ? "bg-white! px-2! transition-[padding]"
+                    : ""
+                }
+              ></span>
+            );
+          })}
+      </div>
+    </div>
+  );
+}

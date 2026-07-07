@@ -9,6 +9,7 @@ export function OptimizedImg({
   isLoadFast = false,
   ...props
 }) {
+  //!for slider image i may need to change iamge configuration the problem is srcset optimization the images are looking slightly bluring so see it. later. 
   const imageData = getImg(imgName);
   const loadType = isLoadFast
     ? { loading: "eager", decoding: "sync", fetchPriority: "high" }

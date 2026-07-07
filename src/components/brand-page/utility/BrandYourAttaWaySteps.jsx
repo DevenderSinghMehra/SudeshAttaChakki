@@ -7,7 +7,7 @@ export function BrandYourAttaWaySteps() {
     isMediaQuery: true,
     widthType: "maxWidth",
     widthNum: 966,
-  });
+  });//!jsut remove this it pollutes window with alot of event listner not needed use window.mediaquery
   const [isSingleStep, setIsSingleStep] = useState(isTablet);
   const [activeStep, setActiveStep] = useState(1);
   const autoPlayId = useRef(0);

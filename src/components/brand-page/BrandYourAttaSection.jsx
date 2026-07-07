@@ -1,12 +1,13 @@
 import mudPaper from "../../assets/mudPaper.webp";
 import scooter from "../../assets/scooter.png";
+import { CustomSlider } from "../CustomSlider";
 import { SpriteIcon } from "../SpriteIcon";
 import { BrandSectionTitle } from "./utility/BrandSectionTitle";
 import { BrandYourAttaStepCard } from "./utility/BrandYourAttaStepCard";
 import { BrandYourAttaStepCardBadge } from "./utility/BrandYourAttaStepCardBadge";
 
 export function BrandYourAttaSection() {
-  // !make it grid only later the roi as of now is less so i am not doing it now. as from performance and clarity pov it is still solid, it is jsut when one can do why use 2. but again even if you left it, it will be ok this is low roi change. 
+  // !make it grid only later the roi as of now is less so i am not doing it now. as from performance and clarity pov it is still solid, it is jsut when one can do why use 2. but again even if you left it, it will be ok this is low roi change.
   return (
     <section
       style={{ backgroundImage: `url(${mudPaper})` }}
@@ -73,7 +74,22 @@ export function BrandYourAttaSection() {
             }
           />
         </div>
-        <div className="h-66 w-[min(322px,100%)] rounded-[10px] bg-amber-300 max-md:mx-auto md:h-auto lg:w-2xs"></div>
+        <div className="h-66 w-[min(322px,100%)] overflow-clip rounded-[10px] bg-amber-300 max-md:mx-auto md:h-auto lg:w-2xs">
+          <CustomSlider
+            transitionDuration="0.8s"
+            autoPlayDuration={5000}
+            imgNameArr={[
+              "heroImg-1",
+              "heroImg-2",
+              "heroImg-3",
+              "heroImg-1",
+              "heroImg-2",
+              "heroImg-3",
+            ]}
+            isAutoPlayEnabled={true}
+            definedAxis="X"
+          />
+        </div>
       </div>
     </section>
   );

@@ -4,7 +4,6 @@ const images = import.meta.glob("/src/assets/images/**/*.{webp,avif,png}", {
 });
 
 const pixels = [400, 640, 768, 1024];
-console.log(images);
 export function getImg(imgName) {
   const src = images[`/src/assets/images/${imgName}/${imgName}.webp`];
   const srcSetArr = [];
