@@ -10,6 +10,7 @@ export function OptimizedImg({
   ...props
 }) {
   //!for slider image i may need to change iamge configuration the problem is srcset optimization the images are looking slightly bluring so see it. later. 
+  //*change sharp setting to generate a image for px more than 1024 px.
   const imageData = getImg(imgName);
   const loadType = isLoadFast
     ? { loading: "eager", decoding: "sync", fetchPriority: "high" }

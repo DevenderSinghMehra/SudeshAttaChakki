@@ -5,7 +5,7 @@ export function BrandHeroSlider() {
   return (
     <div className="flex-1">
       <CustomSlider
-        transitionDuration="0.8s"
+        defineTransitionDuration="800ms"
         autoPlayDuration={5000}
         imgNameArr={[
           "heroImg-1",
@@ -16,7 +16,7 @@ export function BrandHeroSlider() {
           "heroImg-3",
         ]}
         isAutoPlayEnabled={true}
-        definedAxis="X"
+        setAxis="X"
       />
     </div>
   );

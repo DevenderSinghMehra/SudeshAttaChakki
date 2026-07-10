@@ -4,12 +4,15 @@ export function CrouselBtn({
   pointingDirection,
   onClick,
   isAutoPlayEnabled,
-  setIsAutoPlay,
+  slider,
 }) {
   const autoPlayEvents = isAutoPlayEnabled
     ? {
-        onMouseEnter: () => setIsAutoPlay(false),
-        onMouseLeave: () => setIsAutoPlay(true),
+        onMouseEnter: () => {
+          slider.current.isAutoPlayPaused = true;
+          console.log("sir i have turned it off");
+        },
+        onMouseLeave: () => (slider.current.isAutoPlayPaused = false),
       }
     : null;
 

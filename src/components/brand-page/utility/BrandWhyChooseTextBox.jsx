@@ -15,7 +15,7 @@ export function BrandWhyChooseTextBox({ isAriaHidden, title, info }) {
       </div>
       <div className="ml-3.5 h-51 shrink-0 overflow-clip rounded-sm max-lg:w-[max(96px,20vw)] lg:h-45 lg:w-52">
         <CustomSlider
-          transitionDuration="0.8s"
+          defineTransitionDuration="800ms"
           imgNameArr={[
             "heroImg-1",
             "heroImg-2",
@@ -25,7 +25,7 @@ export function BrandWhyChooseTextBox({ isAriaHidden, title, info }) {
             "heroImg-3",
           ]}
           isTouchConstraint={true}
-          definedAxis="Y"
+          setAxis="Y"
         />
       </div>
     </div>

@@ -110,7 +110,8 @@ export function BrandWhyChooseSection(params) {
             {isReadMore ? "Read Less" : "Read More"}
             <SpriteIcon
               iconName="double-downward-arrow"
-              className={`ml-2 size-3.5 transition-transform ${isReadMore && "scale-y-[-1]"}`}
+              className="ml-2 size-3.5"
+              // i took off the animation from arrow
             />
           </button>
         </div>

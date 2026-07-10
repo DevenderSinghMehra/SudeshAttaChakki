@@ -76,7 +76,7 @@ export function BrandYourAttaSection() {
         </div>
         <div className="h-66 w-[min(322px,100%)] overflow-clip rounded-[10px] bg-amber-300 max-md:mx-auto md:h-auto lg:w-2xs">
           <CustomSlider
-            transitionDuration="0.8s"
+            defineTransitionDuration="800ms"
             autoPlayDuration={5000}
             imgNameArr={[
               "heroImg-1",
@@ -87,7 +87,7 @@ export function BrandYourAttaSection() {
               "heroImg-3",
             ]}
             isAutoPlayEnabled={true}
-            definedAxis="X"
+            setAxis="X"
           />
         </div>
       </div>

@@ -2,8 +2,8 @@ import { CrouselBtn } from "./CrouselBtn";
 
 export function HorizontalSliderNavigation({
   slider,
+  slideIndexCount,
   isAutoPlayEnabled,
-  setIsAutoPlay,
   updateSlider,
 }) {
   function crouselBtnClickHandler(movementDirection) {}
@@ -13,7 +13,7 @@ export function HorizontalSliderNavigation({
       <div className="hidden flex-1 px-2 md:flex md:items-center md:justify-between">
         <CrouselBtn
           isAutoPlayEnabled={isAutoPlayEnabled}
-          setIsAutoPlay={setIsAutoPlay}
+          slider={slider}
           onClick={() => {
             if (slider.current.reset.start) return;
             else updateSlider(100, "backward");
@@ -22,7 +22,7 @@ export function HorizontalSliderNavigation({
         />
         <CrouselBtn
           isAutoPlayEnabled={isAutoPlayEnabled}
-          setIsAutoPlay={setIsAutoPlay}
+          slider={slider}
           onClick={() => {
             if (slider.current.reset.start) return;
             else updateSlider(100, "forward");
@@ -38,7 +38,7 @@ export function HorizontalSliderNavigation({
               <span
                 key={i}
                 className={
-                  slider.current.currentSlideIndexCount === i
+                  slideIndexCount === i
                     ? "bg-white! px-2! transition-[padding]"
                     : ""
                 }
