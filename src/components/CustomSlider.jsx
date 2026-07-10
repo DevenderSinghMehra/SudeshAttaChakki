@@ -183,7 +183,7 @@ export function CustomSlider({
         if (touch.current.active) invokeSliderUpdate();
         touch.current.focused = false;
       }}
-      className="relative h-full cursor-grab touch-none select-none active:cursor-grabbing"
+      className={`relative h-full cursor-grab ${isAxisX ? "touch-pan-y" : "touch-pan-x"} select-none active:cursor-grabbing`}
     >
       <div className="absolute inset-0 overflow-clip">
         <div
