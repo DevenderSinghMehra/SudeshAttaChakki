@@ -4,6 +4,7 @@ import { BrandFooterList } from "./utility/BrandFooterList";
 import { BrandFooterContactList } from "./utility/BrandFooterContactList";
 import { SpriteIcon } from "../SpriteIcon";
 import { OptimizedImg } from "../OptimizedImg";
+import { BubbleEffect } from "../BubbleEffect";
 
 export function BrandFooter(params) {
   // !this is a design convery i was liking the bg with sky, from the image but earlier i designed it differenly now suddenly i do no want to change teh design decision plus the impacts get less maybe it can be helpfull though sky brings in space makes thing feel lightly but it might nog well with the layout. think about this later.
@@ -49,13 +50,17 @@ export function BrandFooter(params) {
               Choose your atta today and taste the difference.
             </p>
           </div>
-          <button className="bg-golden-amber mt-6 flex items-center rounded-md px-4.5 py-3 shadow-[0px_4px_4px_#00000040]">
+          <button className="bg-golden-amber relative mt-6 flex items-center rounded-md px-4.5 py-3 shadow-[0px_4px_4px_#00000040]">
             <span className="font-poppins text-base font-semibold">
               CHOOSE YOUR ATTA
             </span>
             <SpriteIcon
               className="ml-2 size-4.5 stroke-white"
               iconName="arow-right"
+            />
+            <BubbleEffect
+              borderRadius="rounded-md"
+              bubbleBg="bg-amber-200/40"
             />
           </button>
         </div>
@@ -78,6 +83,7 @@ export function BrandFooter(params) {
                     className="size-7.5 shrink-0 fill-white lg:hover:size-8"
                     iconName={iconName}
                   />
+                  
                 </a>
               ))}
             </div>

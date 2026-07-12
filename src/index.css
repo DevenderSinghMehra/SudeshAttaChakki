@@ -16,6 +16,7 @@
   --breakpoint-mid-sm: 28.75rem;
   --animate-slide: slide 5s linear infinite;
   --animate-delayed-slide: delayed-slide 5s linear 2.5s infinite;
+  --animate-fill-out: fill-out 0.75s ease 1;
   --ease-smooth: ease;
   --radius-xxl: 15px;
   --shadow-btn: 0 0px 10.2px -2.55px #00000030;
@@ -40,6 +41,18 @@
     100% {
       opacity: 1;
       transform: translateX(-100%);
+    }
+  }
+
+  @keyframes fill-out {
+    0% {
+      scale: 1;
+      opacity: 1;
+    }
+
+    100% {
+      scale: 20;
+      opacity: 0;
     }
   }
 }

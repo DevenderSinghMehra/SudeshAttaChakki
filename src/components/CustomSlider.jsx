@@ -12,12 +12,10 @@ export function CustomSlider({
   isTouchConstraint = false,
 }) {
   //!later do a skeleton effect for the slider.and write a logic to mount it later.
-  //!later allow scroll of the nonaxis swipe on slider, if x is axis then y should be avialble to sroll the page as of now none works.
+
   //! and media query to turn slider vertical and horizontal.
   //!as of now it is nto important, but i will add infinite autoplay or differen type of autoPlay ability on the sider , but for now on loop off there will be no autoplay. then with time we will proceed forward.
 
-  //??migrate the whole slider from state to ref as much as possible.
-  //!re-define set naming to define naming as state is reserved, i mean conventionaly used for useSate.
   const slider = useRef({
     trackLength: 0,
     isTransitioning: false,
@@ -44,8 +42,12 @@ export function CustomSlider({
     endPoint: 0,
   });
   const [slideIndexCount, setSlideIndexCount] = useState(0);
+  // const [isAutoPlay, setIsAutoPlay] = useState(true);
   const slideTrackEl = useRef(null);
   //*3 state to one, in practice 2k re-render to only 12-30 rerender even on high end usage.
+
+  /* refactor autoPlay logic so that timming is consistent, after apuses as well do it with setTimeout with a watch buffer(setTimeout) before turning it on --helpful in agressive switches where turing autoplay woudl have been useLess, and ensure it works well with out of view port turn it off logic */
+
 
   useEffect(() => {
     // --handle isAutoPlayEnabled toggle and default case
@@ -150,8 +152,14 @@ export function CustomSlider({
         //--gather touch details
         touch.current.focused = true;
         touch.current.startPoint = e[`client${axis}`];
-        //to maintain touch constarints when browser overules with its gestures
-        if (isTouchConstraint) e.target.releasePointerCapture(e.pointerId); //!i want to limit it in mobile device onlly or on device where there is  pointer capture active
+        //to maintain touch constarints when browser overules with its gestures also check whether it overrules or not
+        if (
+          isTouchConstraint &&
+          e.currentTarget.hasPointerCapture(e.pointerId)
+        ) {
+          e.currentTarget.releasePointerCapture(e.pointerId);
+        }
+
         //define the right track length
         const { clientWidth, clientHeight } = e.currentTarget;
         slider.current.trackLength = isAxisX ? clientWidth : clientHeight;
@@ -165,7 +173,6 @@ export function CustomSlider({
           // --
           const delta = startPoint - endPoint;
           const measuredSwipe = (delta / trackLength) * 100;
-          //it becomes pixel perfect when i got rid of math.round, also become lite.
           moveSlideTrack({
             isFast: true,
             translateValue: accumulatedSwipeValue + measuredSwipe,

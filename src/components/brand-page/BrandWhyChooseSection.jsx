@@ -110,7 +110,7 @@ export function BrandWhyChooseSection(params) {
             {isReadMore ? "Read Less" : "Read More"}
             <SpriteIcon
               iconName="double-downward-arrow"
-              className="ml-2 size-3.5"
+              className={`ml-2 size-3.5 ${isReadMore ? "rotate-180" : ""}`}
               // i took off the animation from arrow
             />
           </button>

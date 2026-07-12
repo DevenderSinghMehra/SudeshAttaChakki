@@ -5,7 +5,7 @@ export function BrandFooterList({ heading, listArr }) {
       <ul>
         {listArr.map((text, i) => (
           <li key={i}>
-            <a href="">{text}</a>
+            <a href={`#${text}`}>{text}</a>
           </li>
         ))}
       </ul>
