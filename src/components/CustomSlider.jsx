@@ -20,7 +20,6 @@ export function CustomSlider({
     trackLength: 0,
     isTransitioning: false,
     autoPlayId: 0,
-    isAutoPlayPaused: false,
     totalSlideCount: imgNameArr.length,
     currentTranslateValue: 0,
     reset: {
@@ -42,12 +41,21 @@ export function CustomSlider({
     endPoint: 0,
   });
   const [slideIndexCount, setSlideIndexCount] = useState(0);
-  // const [isAutoPlay, setIsAutoPlay] = useState(true);
   const slideTrackEl = useRef(null);
-  //*3 state to one, in practice 2k re-render to only 12-30 rerender even on high end usage.
 
-  /* refactor autoPlay logic so that timming is consistent, after apuses as well do it with setTimeout with a watch buffer(setTimeout) before turning it on --helpful in agressive switches where turing autoplay woudl have been useLess, and ensure it works well with out of view port turn it off logic */
+  //!though not needed but jsut as final touch implement debounce for autoplay later
 
+  function startAutoPlay() {
+    slider.current.autoPlayId = setInterval(() => {
+      if (slider.current.isTransitioning || slider.current.reset.start) return; //guard
+      updateSlider(100, "forward");
+    }, autoPlayDuration);
+  }
+
+  function stopAutoPlay() {
+    clearInterval(slider.current.autoPlayId);
+    slider.current.autoPlayId = 0;
+  }
 
   useEffect(() => {
     // --handle isAutoPlayEnabled toggle and default case
@@ -55,14 +63,9 @@ export function CustomSlider({
 
     // --handle autoPlayDuration toggle and default case when no toggle
     //set setInterval for autoplay
-    slider.current.autoPlayId = setInterval(() => {
-      if (slider.current.isAutoPlayPaused || slider.current.reset.start) return; //guard
-      //!i like the re-render it is saving me but i need to clear it on pause and set it back to have a consistent duration timming. else 5s can be like 2s.
-      updateSlider(100, "forward");
-    }, autoPlayDuration);
-
-    //--the cleanup will run on before -re-renders and after unmount so no need to clearn interval manually on re-render
-    return () => clearInterval(slider.current.autoPlayId);
+    startAutoPlay();
+    //--the cleanup will run on before -re-renders and after unmount so no need to clearn interval manually on re-render caused by dependencies.
+    return () => stopAutoPlay();
   }, [autoPlayDuration, isAutoPlayEnabled]);
 
   function resetSlider() {
@@ -108,7 +111,6 @@ export function CustomSlider({
   }
 
   function invokeSliderUpdate() {
-    if (isAutoPlayEnabled) slider.current.isAutoPlayPaused = false;
     touch.current.active = false;
     const { currentSwipeValue } = swipe.current;
     // --validate update
@@ -125,9 +127,18 @@ export function CustomSlider({
     }
   }
 
+  function handlePointerEnd() {
+    if (touch.current.active) invokeSliderUpdate();
+    // --
+    if (touch.current.focused) {
+      touch.current.focused = false;
+      if (isAutoPlayEnabled) startAutoPlay();
+    }
+  }
+
   function moveSlideTrack({ isFast, translateValue }) {
-    const { style } = slideTrackEl.current;
-    // !later twist the logic so that style is cached on pointer down so that the destructuring overhead does not bother though it is already fast but still. it can be more. i just stick with lookups but i dont want code to be hard on eyes.
+    const { style } = slideTrackEl.current; //!cache it on pointerDown
+
     if (isFast && style.transitionDuration !== "0ms") {
       style.transitionDuration = "0ms";
     } else if (!isFast) {
@@ -135,7 +146,6 @@ export function CustomSlider({
         style.transitionDuration = defineTransitionDuration;
       }
     }
-
     // --
     style.transform = `translate${axis}(calc(${-translateValue}% - 100%))`;
     slider.current.currentTranslateValue = translateValue;
@@ -148,7 +158,7 @@ export function CustomSlider({
         const { isTransitioning, reset } = slider.current;
         if (isTransitioning || reset.start) return;
         //--
-        if (isAutoPlayEnabled) slider.current.isAutoPlayPaused = true;
+        if (isAutoPlayEnabled) stopAutoPlay();
         //--gather touch details
         touch.current.focused = true;
         touch.current.startPoint = e[`client${axis}`];
@@ -182,14 +192,8 @@ export function CustomSlider({
           if (!active) touch.current.active = true;
         }
       }}
-      onPointerUp={() => {
-        if (touch.current.active) invokeSliderUpdate();
-        touch.current.focused = false;
-      }}
-      onPointerLeave={() => {
-        if (touch.current.active) invokeSliderUpdate();
-        touch.current.focused = false;
-      }}
+      onPointerUp={handlePointerEnd}
+      onPointerLeave={handlePointerEnd}
       className={`relative h-full cursor-grab ${isAxisX ? "touch-pan-y" : "touch-pan-x"} select-none active:cursor-grabbing`}
     >
       <div className="absolute inset-0 overflow-clip">
@@ -231,6 +235,8 @@ export function CustomSlider({
         {isAxisX ? (
           <HorizontalSliderNavigation
             slider={slider}
+            stopAutoPlay={stopAutoPlay}
+            startAutoPlay={startAutoPlay}
             slideIndexCount={slideIndexCount}
             isAutoPlayEnabled={isAutoPlayEnabled}
             updateSlider={updateSlider}

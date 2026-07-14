@@ -16,7 +16,7 @@
   --breakpoint-mid-sm: 28.75rem;
   --animate-slide: slide 5s linear infinite;
   --animate-delayed-slide: delayed-slide 5s linear 2.5s infinite;
-  --animate-fill-out: fill-out 0.75s ease 1;
+  --animate-ripple: ripple 0.75s ease 1;
   --ease-smooth: ease;
   --radius-xxl: 15px;
   --shadow-btn: 0 0px 10.2px -2.55px #00000030;
@@ -33,6 +33,7 @@
   }
 
   @keyframes delayed-slide {
+    /* rename it to just slide */
     0% {
       opacity: 1;
       transform: translateX(100%);
@@ -44,14 +45,17 @@
     }
   }
 
-  @keyframes fill-out {
+  @keyframes ripple {
     0% {
       scale: 1;
       opacity: 1;
     }
+    25% {
+      opacity: 1;
+    }
 
     100% {
-      scale: 20;
+      scale: var(--ripple-end-size, 15);
       opacity: 0;
     }
   }

@@ -1,4 +1,5 @@
 import mudPaper from "../../assets/mudPaper.webp";
+import { RippleEffect } from "../RippleEffect";
 import { SpriteIcon } from "../SpriteIcon";
 import { BrandItemCard } from "./utility/BrandItemCard";
 import { BrandSectionTitle } from "./utility/BrandSectionTitle";
@@ -32,10 +33,12 @@ export function BrandVarietySection() {
         </div>
         <button className="border-golden-amber mx-auto flex items-center rounded-md border-2 bg-transparent px-4.5 py-2.25 md:absolute md:top-10 md:-right-13 md:px-3 md:py-1.5 lg:-right-15">
           {/* //!this button needs solid styling to go well with the ui, it is a ux ui concern there fore i am not working on it for now. */}
-          <span className="font-poppins text-sm">
-            Visit Store
-          </span>
-          <SpriteIcon className="ml-2 size-4.5 stroke-[#6f2419]" iconName="arow-right" />
+          <span className="font-poppins text-sm">Visit Store</span>
+          <SpriteIcon
+            className="ml-2 size-4.5 stroke-[#6f2419]"
+            iconName="arow-right"
+          />
+          {/* we need to modifie ripple if we want to attach in here.  */}
         </button>
       </div>
     </section>

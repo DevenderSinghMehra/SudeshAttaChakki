@@ -4,7 +4,7 @@ import { BrandFooterList } from "./utility/BrandFooterList";
 import { BrandFooterContactList } from "./utility/BrandFooterContactList";
 import { SpriteIcon } from "../SpriteIcon";
 import { OptimizedImg } from "../OptimizedImg";
-import { BubbleEffect } from "../BubbleEffect";
+import { RippleEffect } from "../RippleEffect";
 
 export function BrandFooter(params) {
   // !this is a design convery i was liking the bg with sky, from the image but earlier i designed it differenly now suddenly i do no want to change teh design decision plus the impacts get less maybe it can be helpfull though sky brings in space makes thing feel lightly but it might nog well with the layout. think about this later.
@@ -58,9 +58,10 @@ export function BrandFooter(params) {
               className="ml-2 size-4.5 stroke-white"
               iconName="arow-right"
             />
-            <BubbleEffect
+            <RippleEffect
               borderRadius="rounded-md"
-              bubbleBg="bg-amber-200/40"
+              rippleBg="bg-white/30"
+              rippleEndSize="20"
             />
           </button>
         </div>
@@ -70,23 +71,28 @@ export function BrandFooter(params) {
         <div className="font-poppins mx-auto mt-5 grid border-b border-white/40 pb-4 max-lg:gap-y-8 min-[380px]:grid-cols-2 md:grid-cols-3 lg:mt-10 lg:max-w-5xl lg:grid-cols-4 lg:pb-12">
           <div className="max-lg:col-span-full">
             <Logo isSlogan={true} />
-            <div className="mt-3 flex gap-x-3">
+            <ul className="mt-2 flex gap-x-1.5">
               {socialLinks.map(({ href, iconName }, i) => (
-                <a
-                  key={i}
-                  href={href}
-                  className="size-9"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <SpriteIcon
-                    className="size-7.5 shrink-0 fill-white lg:hover:size-8"
-                    iconName={iconName}
-                  />
-                  
-                </a>
+                <li className="lg:transition-color relative cursor-pointer rounded-md p-1.25 lg:transition-transform lg:duration-100 lg:hover:scale-110 lg:hover:bg-white/8">
+                  <a
+                    key={i}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <SpriteIcon
+                      className="size-7.5 shrink-0 fill-white"
+                      iconName={iconName}
+                    />
+                    {/* <RippleEffect
+                      borderRadius="rounded-md"
+                      rippleBg="bg-white/30"
+                      rippleEndSize="20"
+                    /> */}
+                  </a>
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
 
           <BrandFooterList

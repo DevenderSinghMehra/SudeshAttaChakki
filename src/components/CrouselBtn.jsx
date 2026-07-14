@@ -1,18 +1,17 @@
 import { SpriteIcon } from "./SpriteIcon";
 
 export function CrouselBtn({
-  pointingDirection,
-  onClick,
-  isAutoPlayEnabled,
   slider,
+  startAutoPlay,
+  stopAutoPlay,
+  isAutoPlayEnabled,
+  onClick,
+  pointingDirection,
 }) {
   const autoPlayEvents = isAutoPlayEnabled
     ? {
-        onMouseEnter: () => {
-          slider.current.isAutoPlayPaused = true;
-          console.log("sir i have turned it off");
-        },
-        onMouseLeave: () => (slider.current.isAutoPlayPaused = false),
+        onMouseEnter: stopAutoPlay,
+        onMouseLeave: startAutoPlay,
       }
     : null;
 
