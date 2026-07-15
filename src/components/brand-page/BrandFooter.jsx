@@ -73,9 +73,11 @@ export function BrandFooter(params) {
             <Logo isSlogan={true} />
             <ul className="mt-2 flex gap-x-1.5">
               {socialLinks.map(({ href, iconName }, i) => (
-                <li className="lg:transition-color relative cursor-pointer rounded-md p-1.25 lg:transition-transform lg:duration-100 lg:hover:scale-110 lg:hover:bg-white/8">
+                <li
+                  key={i}
+                  className="lg:transition-color relative cursor-pointer rounded-md p-1.25 lg:transition-transform lg:duration-100 lg:hover:scale-110 lg:hover:bg-white/8"
+                >
                   <a
-                    key={i}
                     href={href}
                     target="_blank"
                     rel="noopener noreferrer"

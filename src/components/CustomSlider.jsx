@@ -42,10 +42,38 @@ export function CustomSlider({
   });
   const [slideIndexCount, setSlideIndexCount] = useState(0);
   const slideTrackEl = useRef(null);
+  const slideEl = useRef(null);
+
+  useEffect(() => {
+    if (!isAutoPlayEnabled) return;
+
+    const observer = new IntersectionObserver(([entry]) => {
+      //entry.isIntersecting is true when el is visible on view port
+      if (entry.isIntersecting) startAutoPlay();
+      else stopAutoPlay();
+    });
+
+    observer.observe(slideEl.current);
+
+    return () => observer.disconnect();
+  }, [isAutoPlayEnabled]);
+
+  useEffect(() => {
+    // --for isAutoPlayEnabled toggle and default case
+    if (!isAutoPlayEnabled) return;
+
+    //--for autoPlayDuration toggle and default case
+    startAutoPlay();
+
+    //--run cleanup  before -re-renders and after unmount
+    return () => stopAutoPlay();
+  }, [autoPlayDuration, isAutoPlayEnabled]);
 
   //!though not needed but jsut as final touch implement debounce for autoplay later
 
   function startAutoPlay() {
+    if (slider.current.autoPlayId !== 0) return;
+    //--
     slider.current.autoPlayId = setInterval(() => {
       if (slider.current.isTransitioning || slider.current.reset.start) return; //guard
       updateSlider(100, "forward");
@@ -53,20 +81,11 @@ export function CustomSlider({
   }
 
   function stopAutoPlay() {
+    if (slider.current.autoPlayId === 0) return;
+    //--
     clearInterval(slider.current.autoPlayId);
     slider.current.autoPlayId = 0;
   }
-
-  useEffect(() => {
-    // --handle isAutoPlayEnabled toggle and default case
-    if (!isAutoPlayEnabled) return;
-
-    // --handle autoPlayDuration toggle and default case when no toggle
-    //set setInterval for autoplay
-    startAutoPlay();
-    //--the cleanup will run on before -re-renders and after unmount so no need to clearn interval manually on re-render caused by dependencies.
-    return () => stopAutoPlay();
-  }, [autoPlayDuration, isAutoPlayEnabled]);
 
   function resetSlider() {
     const { reset, totalSlideCount } = slider.current;
@@ -135,7 +154,7 @@ export function CustomSlider({
       if (isAutoPlayEnabled) startAutoPlay();
     }
   }
-
+  console.log(slideTrackEl.current);
   function moveSlideTrack({ isFast, translateValue }) {
     const { style } = slideTrackEl.current; //!cache it on pointerDown
 
@@ -153,6 +172,7 @@ export function CustomSlider({
 
   return (
     <div
+      ref={slideEl}
       onPointerDown={(e) => {
         //return if rest or transition is active
         const { isTransitioning, reset } = slider.current;
