@@ -10,18 +10,18 @@ export function CustomSlider({
   isAutoPlayEnabled = false,
   setAxis = "X",
   isTouchConstraint = false,
+  isLoop = true,
 }) {
+  //!though not needed but jsut as final touch implement debounce for autoplay later
   //!later do a skeleton effect for the slider.and write a logic to mount it later.
-
   //! and media query to turn slider vertical and horizontal.
-  //!as of now it is nto important, but i will add infinite autoplay or differen type of autoPlay ability on the sider , but for now on loop off there will be no autoplay. then with time we will proceed forward.
 
   const slider = useRef({
     trackLength: 0,
     isTransitioning: false,
     autoPlayId: 0,
     totalSlideCount: imgNameArr.length,
-    currentTranslateValue: 0,
+    currentTranslate: 0,
     reset: {
       start: false,
       action: null,
@@ -31,8 +31,8 @@ export function CustomSlider({
   const isAxisX = axis === "X" ? true : false;
 
   const swipe = useRef({
-    accumulatedSwipeValue: 0,
-    currentSwipeValue: 0,
+    accumulatedSwipe: 0,
+    currentSwipe: 0,
   });
   const touch = useRef({
     focused: false,
@@ -43,6 +43,10 @@ export function CustomSlider({
   const [slideIndexCount, setSlideIndexCount] = useState(0);
   const slideTrackEl = useRef(null);
   const slideEl = useRef(null);
+
+  if (!isLoop && isAutoPlayEnabled) {
+    throw new Error("Wrong prop Combination, To use autoplay set isLoop true");
+  }
 
   useEffect(() => {
     if (!isAutoPlayEnabled) return;
@@ -69,8 +73,6 @@ export function CustomSlider({
     return () => stopAutoPlay();
   }, [autoPlayDuration, isAutoPlayEnabled]);
 
-  //!though not needed but jsut as final touch implement debounce for autoplay later
-
   function startAutoPlay() {
     if (slider.current.autoPlayId !== 0) return;
     //--
@@ -92,82 +94,125 @@ export function CustomSlider({
     // -- reset on real first or real last
     const resetValue =
       reset.action === "realFirst" ? 0 : (totalSlideCount - 1) * 100;
-    swipe.current.accumulatedSwipeValue = resetValue;
+    swipe.current.accumulatedSwipe = resetValue;
     slider.current.reset.action = null;
     slider.current.reset.start = false;
-    moveSlideTrack({ isFast: true, translateValue: resetValue });
+    moveSlideTrack({ isFast: true, translate: resetValue });
   }
 
-  function updateCrouselIndicator(nextSlideCount) {
-    //update crousel indicator and ensure to reset when on clone slides
-    if (nextSlideCount === -1) {
-      slider.current.reset.start = true;
-      slider.current.reset.action = "realLast";
-      setSlideIndexCount(slider.current.totalSlideCount - 1);
-    } else if (nextSlideCount === slider.current.totalSlideCount) {
-      slider.current.reset.start = true;
-      slider.current.reset.action = "realFirst";
-      setSlideIndexCount(0);
-    } else {
-      //--do this when it is not a clone slide
-      setSlideIndexCount(nextSlideCount);
+  function updateIndicator(nextSlideIndexCount) {
+    //update crousel indicator and ensure to reset its a clone slide
+    switch (nextSlideIndexCount) {
+      case -1:
+        slider.current.reset.start = true;
+        slider.current.reset.action = "realLast";
+        setSlideIndexCount(slider.current.totalSlideCount - 1);
+        return;
+
+      case slider.current.totalSlideCount:
+        slider.current.reset.start = true;
+        slider.current.reset.action = "realFirst";
+        setSlideIndexCount(0);
+        return;
+
+      default:
+        //--for not clone slide
+        setSlideIndexCount(nextSlideIndexCount);
+        return;
     }
   }
 
   function updateSlider(value, action) {
-    const { currentTranslateValue: prevTranslateValue } = slider.current;
+    const { currentTranslate: prevTranslate } = slider.current;
     //-gauge the requried value needed to go to next slide
-    const definedSlide =
+    const nextTranslate =
       action === "forward"
-        ? prevTranslateValue + value
-        : prevTranslateValue - value;
-    swipe.current.accumulatedSwipeValue = definedSlide;
+        ? Math.round(prevTranslate + value)
+        : Math.round(prevTranslate - value);
+    //-- js can introduce minor floating-point precision errors; Normalize using Math.round
+    /* actually js does not causes it, its the format number data type relies upon causes it, 
+    IEEE 754 double-precision floating-point format. */
+    const nextSlideIndexCount = nextTranslate / 100;
+    if (!isLoop) {
+      //run this only for not loop case to handle its ends
+      const isEnd =
+        nextSlideIndexCount === -1 ||
+        nextSlideIndexCount === slider.current.totalSlideCount;
+
+      // -- do not let it slide on end for swipe only as button are disabled in the ends
+      if (isEnd) {
+        // --
+        moveSlideTrack({
+          isFast: false,
+          translate: Math.round(
+            slider.current.currentTranslate - swipe.current.currentSwipe,
+          ),
+          duration: "300ms",
+        });
+        swipe.current.currentSwipe = 0; //not needed but to make debugging easier i am adding this.
+        return;
+      }
+    }
     // --update crousel indcator
-    const nextSlideCount = definedSlide / 100;
-    updateCrouselIndicator(nextSlideCount);
+    swipe.current.accumulatedSwipe = nextTranslate;
+    updateIndicator(nextSlideIndexCount);
+
     // -- move slide track implement translate
-    moveSlideTrack({ isFast: false, translateValue: definedSlide });
+    moveSlideTrack({
+      isFast: false,
+      translate: nextTranslate,
+    });
+    swipe.current.currentSwipe = 0; //not needed but to make debugging easier i am adding this.
   }
 
-  function invokeSliderUpdate() {
+  function validateSwipe() {
     touch.current.active = false;
-    const { currentSwipeValue } = swipe.current;
-    // --validate update
-    if (currentSwipeValue > 15) {
-      updateSlider(100 - currentSwipeValue, "forward");
-    } else if (currentSwipeValue < -15) {
-      updateSlider(100 + currentSwipeValue, "backward");
+    const { currentSwipe } = swipe.current;
+
+    // --validate swipe and update
+    if (currentSwipe > 15) {
+      updateSlider(100 - currentSwipe, "forward");
+    } else if (currentSwipe < -15) {
+      updateSlider(100 + currentSwipe, "backward");
     } else {
       moveSlideTrack({
         isFast: false,
-        translateValue:
-          slider.current.currentTranslateValue - currentSwipeValue,
+        translate: Math.round(slider.current.currentTranslate - currentSwipe),
+        duration: "400ms",
       });
     }
   }
 
-  function handlePointerEnd() {
-    if (touch.current.active) invokeSliderUpdate();
+  function handlePointerEnd(e) {
+    if (touch.current.active) validateSwipe();
     // --
     if (touch.current.focused) {
       touch.current.focused = false;
       if (isAutoPlayEnabled) startAutoPlay();
     }
   }
-  console.log(slideTrackEl.current);
-  function moveSlideTrack({ isFast, translateValue }) {
+
+  function moveSlideTrack({
+    isFast,
+    translate,
+    duration = defineTransitionDuration,
+  }) {
     const { style } = slideTrackEl.current; //!cache it on pointerDown
 
+    //set right duration
     if (isFast && style.transitionDuration !== "0ms") {
       style.transitionDuration = "0ms";
     } else if (!isFast) {
-      if (style.transitionDuration !== defineTransitionDuration) {
-        style.transitionDuration = defineTransitionDuration;
+      if (style.transitionDuration !== duration) {
+        style.transitionDuration = duration;
       }
     }
-    // --
-    style.transform = `translate${axis}(calc(${-translateValue}% - 100%))`;
-    slider.current.currentTranslateValue = translateValue;
+
+    // --translate
+    const loopOffset = isLoop ? "- 100%" : ""; //-cache it
+    style.transform = `translate${axis}(calc(${-translate}% ${loopOffset}))`;
+
+    slider.current.currentTranslate = translate;
   }
 
   return (
@@ -182,13 +227,15 @@ export function CustomSlider({
         //--gather touch details
         touch.current.focused = true;
         touch.current.startPoint = e[`client${axis}`];
-        //to maintain touch constarints when browser overules with its gestures also check whether it overrules or not
-        if (
-          isTouchConstraint &&
-          e.currentTarget.hasPointerCapture(e.pointerId)
-        ) {
-          e.currentTarget.releasePointerCapture(e.pointerId);
+
+        //releaser pointer capturing when there is one
+        if (isTouchConstraint) {
+          const isCapture = e.currentTarget.hasPointerCapture(e.pointerId);
+          if (isCapture) e.currentTarget.releasePointerCapture(e.pointerId);
         }
+
+        // //cache sliderTrack style
+        // slider.current.slideTrackStyle = slideTrackEl.current.style;
 
         //define the right track length
         const { clientWidth, clientHeight } = e.currentTarget;
@@ -197,18 +244,20 @@ export function CustomSlider({
       onPointerMove={(e) => {
         if (touch.current.focused) {
           touch.current.endPoint = e[`client${axis}`];
-          const { endPoint, startPoint, active } = touch.current;
-          const { trackLength } = slider.current;
-          const { accumulatedSwipeValue } = swipe.current;
+          const { startPoint, endPoint, active } = touch.current;
+          const { trackLength, currentTranslate } = slider.current;
+          const { accumulatedSwipe } = swipe.current;
           // --
           const delta = startPoint - endPoint;
-          const measuredSwipe = (delta / trackLength) * 100;
+          const nextSwipeTranslate = (delta / trackLength) * 100;
+
           moveSlideTrack({
             isFast: true,
-            translateValue: accumulatedSwipeValue + measuredSwipe,
+            translate: accumulatedSwipe + nextSwipeTranslate,
           });
+
           // --
-          swipe.current.currentSwipeValue = measuredSwipe;
+          swipe.current.currentSwipe = nextSwipeTranslate;
           if (!active) touch.current.active = true;
         }
       }}
@@ -225,18 +274,19 @@ export function CustomSlider({
             if (slider.current.reset.start) resetSlider();
           }}
           style={{
-            transform: `translate${axis}(-100%)`,
+            transform: isLoop ? `translate${axis}(-100%)` : undefined,
           }}
           className={`ease-smooth transition-translate flex size-full *:size-full *:shrink-0 *:object-cover *:object-center ${
             isAxisX ? "" : "flex-col"
           }`}
-          id="slide-track"
         >
-          <OptimizedImg
-            imgName={imgNameArr[imgNameArr.length - 1]}
-            isDraggable={false}
-            data-clone="last"
-          />
+          {isLoop && (
+            <OptimizedImg
+              imgName={imgNameArr[imgNameArr.length - 1]}
+              isDraggable={false}
+              data-clone="last"
+            />
+          )}
           {imgNameArr.map((imgName, i) => (
             <OptimizedImg
               key={i}
@@ -245,11 +295,13 @@ export function CustomSlider({
               isLoadFast={i <= 2}
             />
           ))}
-          <OptimizedImg
-            imgName={imgNameArr[0]}
-            isDraggable={false}
-            data-clone="first"
-          />
+          {isLoop && (
+            <OptimizedImg
+              imgName={imgNameArr[0]}
+              isDraggable={false}
+              data-clone="first"
+            />
+          )}
         </div>
 
         {isAxisX ? (
@@ -257,6 +309,7 @@ export function CustomSlider({
             slider={slider}
             stopAutoPlay={stopAutoPlay}
             startAutoPlay={startAutoPlay}
+            isLoop={isLoop}
             slideIndexCount={slideIndexCount}
             isAutoPlayEnabled={isAutoPlayEnabled}
             updateSlider={updateSlider}

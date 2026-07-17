@@ -4,10 +4,17 @@ export function HorizontalSliderNavigation({
   slider,
   stopAutoPlay,
   startAutoPlay,
+  isLoop,
   slideIndexCount,
   isAutoPlayEnabled,
   updateSlider,
 }) {
+  function OnClickHandler(action) {
+    return () => {
+      if (slider.current.reset.start) return;
+      else updateSlider(100, action);
+    };
+  }
   return (
     <div className="absolute inset-0 flex md:flex-col">
       <div className="hidden flex-1 px-2 md:flex md:items-center md:justify-between">
@@ -15,22 +22,20 @@ export function HorizontalSliderNavigation({
           slider={slider}
           startAutoPlay={startAutoPlay}
           stopAutoPlay={stopAutoPlay}
+          isLoop={isLoop}
+          slideIndexCount={slideIndexCount}
           isAutoPlayEnabled={isAutoPlayEnabled}
-          onClick={() => {
-            if (slider.current.reset.start) return;
-            else updateSlider(100, "backward");
-          }}
+          onClick={OnClickHandler("backward")}
           pointingDirection="left"
         />
         <CrouselBtn
           slider={slider}
           startAutoPlay={startAutoPlay}
           stopAutoPlay={stopAutoPlay}
+          isLoop={isLoop}
+          slideIndexCount={slideIndexCount}
           isAutoPlayEnabled={isAutoPlayEnabled}
-          onClick={() => {
-            if (slider.current.reset.start) return;
-            else updateSlider(100, "forward");
-          }}
+          onClick={OnClickHandler("forward")}
           pointingDirection="right"
         />
       </div>

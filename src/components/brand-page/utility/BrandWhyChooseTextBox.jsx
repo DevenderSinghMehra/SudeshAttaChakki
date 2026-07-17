@@ -24,6 +24,7 @@ export function BrandWhyChooseTextBox({ isAriaHidden, title, info }) {
             "heroImg-2",
             "heroImg-3",
           ]}
+          isLoop={false}
           isTouchConstraint={true}
           setAxis="Y"
         />

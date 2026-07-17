@@ -17,6 +17,7 @@ export function BrandHeroSlider() {
         ]}
         isAutoPlayEnabled={true}
         setAxis="X"
+        isLoop={true}
       />
     </div>
   );

@@ -11,7 +11,7 @@ export function RippleEffect({
   //!this done really well just scale size is not configurable in the animation else it will be just amazing.
   //add effect configuration and make another ripple wrapper component with more complex position,so that it can work really well.
 
-  
+  //add crisp to it
   return (
     <div
       onClick={(e) => {
