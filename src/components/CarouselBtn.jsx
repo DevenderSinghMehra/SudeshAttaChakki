@@ -1,6 +1,6 @@
 import { SpriteIcon } from "./SpriteIcon";
 
-export function CrouselBtn({
+export function CarouselBtn({
   slider,
   startAutoPlay,
   stopAutoPlay,

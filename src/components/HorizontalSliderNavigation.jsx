@@ -1,4 +1,4 @@
-import { CrouselBtn } from "./CrouselBtn";
+import { CarouselBtn } from "./CarouselBtn";
 
 export function HorizontalSliderNavigation({
   slider,
@@ -12,13 +12,13 @@ export function HorizontalSliderNavigation({
   function OnClickHandler(action) {
     return () => {
       if (slider.current.reset.start) return;
-      else updateSlider(100, action);
+      else updateSlider(action);
     };
   }
   return (
     <div className="absolute inset-0 flex md:flex-col">
       <div className="hidden flex-1 px-2 md:flex md:items-center md:justify-between">
-        <CrouselBtn
+        <CarouselBtn
           slider={slider}
           startAutoPlay={startAutoPlay}
           stopAutoPlay={stopAutoPlay}
@@ -28,7 +28,7 @@ export function HorizontalSliderNavigation({
           onClick={OnClickHandler("backward")}
           pointingDirection="left"
         />
-        <CrouselBtn
+        <CarouselBtn
           slider={slider}
           startAutoPlay={startAutoPlay}
           stopAutoPlay={stopAutoPlay}
