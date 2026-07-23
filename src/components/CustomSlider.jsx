@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { OptimizedImg } from "./OptimizedImg";
 import { HorizontalSliderNavigation } from "./HorizontalSliderNavigation";
 import { VerticalSliderNavigation } from "./VerticalSliderNavigation";
+import { ZoomSlider } from "./ZoomSlider";
 
 export function CustomSlider({
   defineTransitionDuration,
@@ -11,6 +12,8 @@ export function CustomSlider({
   setAxis = "X",
   isTouchConstraint = false,
   isLoop = true,
+  isZoom = false,
+  LightBoxBorderRadius = "",
 }) {
   //!though not needed but jsut as final touch implement debounce for autoplay later
   //!later do a skeleton effect for the slider.and write a logic to mount it later.
@@ -46,6 +49,7 @@ export function CustomSlider({
   const [slideIndexCount, setSlideIndexCount] = useState(0);
   const slideTrackEl = useRef(null);
   const slideEl = useRef(null);
+  const slideContainerEl = useRef(null);
   const isEnd =
     slideIndexCount === 0 ||
     slideIndexCount === slider.current.totalSlideIndexCount;
@@ -64,6 +68,7 @@ export function CustomSlider({
     });
 
     observer.observe(slideEl.current);
+    //slideTrackEl works as well but to keep it simple i went for the track container as it has a stable size
 
     return () => observer.disconnect();
   }, [isAutoPlayEnabled]);
@@ -243,120 +248,126 @@ export function CustomSlider({
 
   return (
     <div
-      ref={slideEl}
-      onPointerDown={(e) => {
-        //return if rest or transition is active
-        const { isTransitioning, reset } = slider.current;
-        if (isTransitioning || reset.start) return;
-        //--
-        if (isAutoPlayEnabled) stopAutoPlay();
-        //--gather touch details
-        touch.current.focused = true;
-        touch.current.startPoint = e[`client${axis}`];
-
-        //releaser pointer capturing when there is one
-        if (isTouchConstraint) {
-          //event bubbles so `e.target` is the element where the interaction originated
-          //in this case, its the element that owns the browser's pointerCapture,
-          //so releasing it from `e.target` fixes the issue.
-          const isCapture = e.target.hasPointerCapture(e.pointerId);
-          if (isCapture) e.target.releasePointerCapture(e.pointerId);
-        }
-
-        //cache sliderTrack style
-        //slider.current.slideTrackStyle = slideTrackEl.current.style;
-
-        //define the right track length
-        const { clientWidth, clientHeight } = e.currentTarget;
-        slider.current.trackLength = isAxisX ? clientWidth : clientHeight;
-      }}
-      onPointerMove={(e) => {
-        if (touch.current.focused) {
-          // --
-          touch.current.endPoint = e[`client${axis}`];
-          const { startPoint, endPoint, active } = touch.current;
-          const { trackLength, baseTranslate } = slider.current;
-          // --
-          const delta = startPoint - endPoint;
-          const nextSwipeTranslate = (delta / trackLength) * 100;
-          swipe.current.currentSwipe = nextSwipeTranslate;
-          // --
-          if (!isLoop && isEnd) {
-            //-- to show quick snap-back on movement, for non-loop mode over boundary swipe
-            const { isOverSwipe, isHitLimit } = getBoundarySwipeData(30);
-            swipe.current.isBeyondEnd = isOverSwipe;
-            //--
-            if (isOverSwipe && isHitLimit) return;
-          }
-          // --
-          moveSlideTrack({
-            isFast: true,
-            translate: baseTranslate + nextSwipeTranslate,
-          });
-          swipe.current.swipeTranslate = nextSwipeTranslate;
-          // --
-          if (!active) touch.current.active = true;
-        }
-      }}
-      onPointerUp={handlePointerEnd}
-      onPointerLeave={handlePointerEnd}
-      className={`relative h-full cursor-grab ${isAxisX ? "touch-pan-y" : "touch-pan-x"} select-none active:cursor-grabbing`}
+      style={{ "--slider-radius": LightBoxBorderRadius }}
+      ref={slideContainerEl}
+      className="size-full"
     >
-      <div className="absolute inset-0 overflow-clip">
-        <div
-          ref={slideTrackEl}
-          onTransitionStart={() => (slider.current.isTransitioning = true)}
-          onTransitionEnd={() => {
-            slider.current.isTransitioning = false;
-            if (slider.current.reset.start) resetSlider();
-          }}
-          style={{
-            transform: isLoop ? `translate${axis}(-100%)` : undefined,
-          }}
-          className={`ease-smooth transition-translate flex size-full *:size-full *:shrink-0 *:object-cover *:object-center ${
-            isAxisX ? "" : "flex-col"
-          }`}
-        >
-          {isLoop && (
-            <OptimizedImg
-              imgName={imgNameArr[imgNameArr.length - 1]}
-              isDraggable={false}
-              data-clone="last"
+      <div
+        ref={slideEl}
+        onPointerDown={(e) => {
+          //return if rest or transition is active
+          const { isTransitioning, reset } = slider.current;
+          if (isTransitioning || reset.start) return;
+          //--
+          if (isAutoPlayEnabled) stopAutoPlay();
+          //--gather touch details
+          touch.current.focused = true;
+          touch.current.startPoint = e[`client${axis}`];
+
+          //release pointer capturing when there is one
+          if (isTouchConstraint) {
+            const isCapture = e.target.hasPointerCapture(e.pointerId);
+            if (isCapture) e.target.releasePointerCapture(e.pointerId);
+          }
+
+          //cache sliderTrack style
+          //slider.current.slideTrackStyle = slideTrackEl.current.style;
+
+          //define the right track length
+          const { clientWidth, clientHeight } = e.currentTarget;
+          slider.current.trackLength = isAxisX ? clientWidth : clientHeight;
+        }}
+        onPointerMove={(e) => {
+          if (touch.current.focused) {
+            // --
+            touch.current.endPoint = e[`client${axis}`];
+            const { startPoint, endPoint, active } = touch.current;
+            const { trackLength, baseTranslate } = slider.current;
+            // --
+            const delta = startPoint - endPoint;
+            const nextSwipeTranslate = (delta / trackLength) * 100;
+            swipe.current.currentSwipe = nextSwipeTranslate;
+            // --
+            if (!isLoop && isEnd) {
+              //-- to show quick snap-back on movement, for non-loop mode over boundary swipe
+              const { isOverSwipe, isHitLimit } = getBoundarySwipeData(30);
+              swipe.current.isBeyondEnd = isOverSwipe;
+              //--
+              if (isOverSwipe && isHitLimit) return;
+            }
+            // --
+            moveSlideTrack({
+              isFast: true,
+              translate: baseTranslate + nextSwipeTranslate,
+            });
+            swipe.current.swipeTranslate = nextSwipeTranslate;
+            // --
+            if (!active) touch.current.active = true;
+          }
+        }}
+        onPointerUp={handlePointerEnd}
+        onPointerLeave={handlePointerEnd}
+        className={`relative size-full cursor-grab ${isAxisX ? "touch-pan-y" : "touch-pan-x"} bg-black/70 select-none active:cursor-grabbing`}
+      >
+        {isZoom && (
+          <ZoomSlider slideEl={slideEl} slideContainerEl={slideContainerEl} />
+        )}
+        <div className="absolute inset-0 overflow-clip">
+          <div
+            ref={slideTrackEl}
+            onTransitionStart={() => (slider.current.isTransitioning = true)}
+            onTransitionEnd={() => {
+              slider.current.isTransitioning = false;
+              if (slider.current.reset.start) resetSlider();
+            }}
+            style={{
+              transform: isLoop ? `translate${axis}(-100%)` : undefined,
+            }}
+            className={`ease-smooth flex size-full *:size-full *:shrink-0 *:object-cover *:object-center ${
+              isAxisX ? "" : "flex-col"
+            }`}
+          >
+            {isLoop && (
+              <OptimizedImg
+                imgName={imgNameArr[imgNameArr.length - 1]}
+                isDraggable={false}
+                data-clone="last"
+              />
+            )}
+            {imgNameArr.map((imgName, i) => (
+              <OptimizedImg
+                key={i}
+                imgName={imgName}
+                isDraggable={false}
+                isLoadFast={i <= 2}
+              />
+            ))}
+            {isLoop && (
+              <OptimizedImg
+                imgName={imgNameArr[0]}
+                isDraggable={false}
+                data-clone="first"
+              />
+            )}
+          </div>
+
+          {isAxisX ? (
+            <HorizontalSliderNavigation
+              slider={slider}
+              stopAutoPlay={stopAutoPlay}
+              startAutoPlay={startAutoPlay}
+              isLoop={isLoop}
+              slideIndexCount={slideIndexCount}
+              isAutoPlayEnabled={isAutoPlayEnabled}
+              updateSlider={updateSlider}
             />
-          )}
-          {imgNameArr.map((imgName, i) => (
-            <OptimizedImg
-              key={i}
-              imgName={imgName}
-              isDraggable={false}
-              isLoadFast={i <= 2}
-            />
-          ))}
-          {isLoop && (
-            <OptimizedImg
-              imgName={imgNameArr[0]}
-              isDraggable={false}
-              data-clone="first"
+          ) : (
+            <VerticalSliderNavigation
+              slider={slider}
+              slideIndexCount={slideIndexCount}
             />
           )}
         </div>
-
-        {isAxisX ? (
-          <HorizontalSliderNavigation
-            slider={slider}
-            stopAutoPlay={stopAutoPlay}
-            startAutoPlay={startAutoPlay}
-            isLoop={isLoop}
-            slideIndexCount={slideIndexCount}
-            isAutoPlayEnabled={isAutoPlayEnabled}
-            updateSlider={updateSlider}
-          />
-        ) : (
-          <VerticalSliderNavigation
-            slider={slider}
-            slideIndexCount={slideIndexCount}
-          />
-        )}
       </div>
     </div>
   );
